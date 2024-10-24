@@ -39,7 +39,7 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 # Node.js
-node_modules/
+./node_modules/
 package-lock.json
 yarn-error.log
 
