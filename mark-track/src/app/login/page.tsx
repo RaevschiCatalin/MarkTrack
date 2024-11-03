@@ -1,24 +1,44 @@
-'use client'
+"use client";
 
 import { useState } from 'react';
 import Link from 'next/link';
 import { signInWithEmailAndPassword } from "firebase/auth";
-import {auth} from "@/config/firebaseConfig"
+import { useRouter } from 'next/navigation';
+import { auth } from "@/config/firebaseConfig";
 
-const handleLogin = async (email: string, password: string) => {
+const handleLogin = async (email: string, password: string, setError: (msg: string) => void) => {
 	try {
 		const userCredential = await signInWithEmailAndPassword(auth, email, password);
-		const token = await userCredential.user.getIdToken(); // Get JWT token
-		// Send the token to your backend for further requests
+		const token = await userCredential.user.getIdToken();
 		console.log("JWT Token:", token);
-	} catch (error) {
-		console.error("Error signing in: ", error);
+		localStorage.setItem("jwtToken", token);
+		return true;
+	} catch (error: any) {
+		if (error.code === "auth/wrong-password") {
+			setError("Invalid password. Please try again.");
+		} else if (error.code === "auth/user-not-found") {
+			setError("No account found with this email.");
+		} else {
+			setError("Something went wrong. Please try again.");
+		}
+		return false;
 	}
 };
 
 export default function Login() {
 	const [email, setEmail] = useState('');
 	const [password, setPassword] = useState('');
+	const [error, setError] = useState<string | null>(null);
+	const router = useRouter();
+
+	const onSubmit = async () => {
+		setError(null);  // Clear any existing error
+		const success = await handleLogin(email, password, setError);
+		if (success) {
+			// Redirect to dashboard or any protected route
+			router.push('/dashboard');
+		}
+	};
 
 	return (
 		<div className="flex justify-center items-center h-screen pb-10">
@@ -37,9 +57,6 @@ export default function Login() {
 							value={email}
 							onChange={(e) => setEmail(e.target.value)}
 						/>
-						<label className="form-label">
-							<span className="form-label-alt">Please enter a valid email.</span>
-						</label>
 					</div>
 					<div className="form-field">
 						<label className="form-label">Password</label>
@@ -53,31 +70,26 @@ export default function Login() {
 							/>
 						</div>
 					</div>
-					<div className="form-field">
-						<div className="form-control justify-between">
-							<div className="flex gap-2">
-								<input type="checkbox" className="checkbox" />
-								<a href="#">Remember me</a>
-							</div>
-							<label className="form-label">
-								<Link href="/forgotPassword" className="link link-underline-hover link-primary text-sm">Forgot your password?</Link>
-							</label>
-						</div>
-					</div>
+
+					{error && <p className="text-red-500">{error}</p>}
+
 					<div className="form-field pt-5">
 						<div className="form-control justify-between">
 							<button
 								type="button"
 								className="btn btn-primary w-full"
-								onClick={() => handleLogin(email, password)}
+								onClick={onSubmit}
 							>
 								Sign in
 							</button>
 						</div>
 					</div>
+
 					<div className="form-field">
 						<div className="form-control justify-center">
-							<Link href="/register" className="link link-underline-hover link-primary text-sm">Don't have an account yet? Sign up.</Link>
+							<Link href="/register" className="link link-underline-hover link-primary text-sm">
+								Don't have an account yet? Sign up.
+							</Link>
 						</div>
 					</div>
 				</div>
