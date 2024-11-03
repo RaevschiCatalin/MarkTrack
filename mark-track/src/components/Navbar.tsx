@@ -7,7 +7,7 @@ export default function Navbar() {
   return (
     <nav className="navbar navbar-no-boxShadow navbar-bordered navbar-sticky">
 	    <div className="navbar-start">
-          <Link href="/">
+          <Link href="/mark-track/public">
             <Image 
               src="/logo.png"
               alt="MarkTrack Logo"
