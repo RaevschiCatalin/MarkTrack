@@ -17,10 +17,14 @@ export default function Navbar() {
           </Link>
 	      <ul className="navbar-end">
 		      <li className="navbar-item">
-            <Link href="/register" className="text-bold">Register</Link>
+                  <button className="btn btn-rounded btn-outline">
+                     <Link href="/register" className="text-bold">Register</Link>
+                  </button>
           </li>
 		      <li className="navbar-item">
-            <Link href="/login" className="text-bold">Login</Link>
+                  <button className="btn btn-rounded btn-secondary">
+                     <Link href="/login" className="text-bold">Login</Link>
+                  </button>
           </li>
 	      </ul>
       </div>

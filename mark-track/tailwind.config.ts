@@ -14,6 +14,6 @@ const config: Config = {
       },
     },
   },
-  plugins: [],
+  plugins: [require("rippleui")],
 };
 export default config;
