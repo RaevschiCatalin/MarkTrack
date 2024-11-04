@@ -3,6 +3,8 @@ import { getAnalytics } from "firebase/analytics";
 import { getAuth } from "firebase/auth";
 import dotenv from 'dotenv';
 import path from 'path';
+import {getFirestore} from "@firebase/firestore";
+import { getDatabase } from 'firebase/database';
 
 // Load environment variables from .env file
 dotenv.config({ path: path.resolve(__dirname, '../../.env') });
@@ -20,5 +22,5 @@ const firebaseConfig = {
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
 export const auth = getAuth();
+export const db = getFirestore(app);

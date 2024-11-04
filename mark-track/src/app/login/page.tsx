@@ -9,6 +9,11 @@ import { auth } from "@/config/firebaseConfig";
 const handleLogin = async (email: string, password: string, setError: (msg: string) => void) => {
 	try {
 		const userCredential = await signInWithEmailAndPassword(auth, email, password);
+		const user = userCredential.user;
+		if (!user.emailVerified) {
+			setError("Please verify your email address before logging in.");
+			return false;
+		}
 		const token = await userCredential.user.getIdToken();
 		console.log("JWT Token:", token);
 		localStorage.setItem("jwtToken", token);
@@ -32,10 +37,9 @@ export default function Login() {
 	const router = useRouter();
 
 	const onSubmit = async () => {
-		setError(null);  // Clear any existing error
+		setError(null);
 		const success = await handleLogin(email, password, setError);
 		if (success) {
-			// Redirect to dashboard or any protected route
 			router.push('/dashboard');
 		}
 	};

@@ -14,17 +14,18 @@ class User(BaseModel):
     @classmethod
     def create_user(cls, email: str, password: str) -> "User":
         firebase_user = firebase_auth.create_user(email=email, password=password)
+        auth_link = firebase_auth.generate_email_verification_link(email)
         user = cls(email=email)
         user.save_to_firestore()
         return user
 
     @classmethod
-    def verify_user(cls, email: str, password: str) -> "User":
-        try:
-            user_info = firebase_auth.get_user_by_email(email)
-            return cls(email=user_info.email)
-        except Exception as e:
-            raise ValueError("Invalid credentials")
+    def verify_user(email: str, password: str) -> bool:
+        user = firebase_auth.get_user_by_email(email)
+        if user.email_verified:
+            return True
+        else:
+            raise ValueError("Please verify your email before logging in.")
 
 
     def save_to_firestore(self):

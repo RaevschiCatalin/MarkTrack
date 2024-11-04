@@ -12,12 +12,12 @@ export default function Home() {
     return (
         <div className="bg-gradient-to-b from-indigo-50 to-indigo-100 min-h-screen flex flex-col items-center text-gray-800 font-sans">
             <header className="sticky top-0 w-full bg-indigo-900 text-white p-5 flex justify-between items-center">
-                <div className="text-2xl font-bold">MarkTrack</div>
+                <div className="text-2xl font-bold">marktrack</div>
                 <nav className="space-x-6 text-lg">
                     <Link href="#features" className="hover:underline">Features</Link>
                     <Link href="/about" className="hover:underline">About</Link>
                     <Link href="/login" className="hover:underline">Login</Link>
-                    <Link href="/signup" className="px-4 py-2 rounded-full bg-indigo-600 hover:bg-indigo-700 transition-all text-white font-semibold shadow-lg">Sign Up</Link>
+                    <Link href="/register" className="px-4 py-2 rounded-full bg-indigo-600 hover:bg-indigo-700 transition-all text-white font-semibold shadow-lg">Sign Up</Link>
                 </nav>
             </header>
 
