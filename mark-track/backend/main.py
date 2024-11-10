@@ -18,7 +18,7 @@ except ValueError:
 
 @app.get("/")
 async def read_root():
-    return {"message": "Hello World"}
+    return {"message": "Hello World, nahui blyat"}
 
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")

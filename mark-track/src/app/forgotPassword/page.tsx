@@ -61,7 +61,7 @@ export default function ForgotPassword() {
 					<div className="form-field">
 						<label className="form-label">Email address</label>
 						<input
-							placeholder="Type here"
+							placeholder="john.smith@institution.com"
 							type="email"
 							className="input input-block"
 							value={email}
