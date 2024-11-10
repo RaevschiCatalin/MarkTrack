@@ -1,8 +1,13 @@
-const TermsPage= () => {
+// src/app/about/page.tsx
+import React from 'react';
+
+const TermsAndContidions = () => {
     return (
         <div>
-        <h1>Terms of Service</h1>
-        <p>These are the terms of service.</p>
+            <h1>Terms</h1>
+            <p>Welcome to our application!</p>
         </div>
     );
-}
+};
+
+export default TermsAndContidions;

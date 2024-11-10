@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { useRouter } from 'next/navigation';
 import { auth } from "@/config/firebaseConfig";
+import { FirebaseError } from 'firebase/app';
 
 const handleLogin = async (email: string, password: string, setError: (msg: string) => void) => {
 	try {
@@ -18,13 +19,17 @@ const handleLogin = async (email: string, password: string, setError: (msg: stri
 		console.log("JWT Token:", token);
 		localStorage.setItem("jwtToken", token);
 		return true;
-	} catch (error: any) {
-		if (error.code === "auth/wrong-password") {
-			setError("Invalid password. Please try again.");
-		} else if (error.code === "auth/user-not-found") {
-			setError("No account found with this email.");
+	} catch (error: unknown) {
+		if (error instanceof FirebaseError) {
+			if (error.code === "auth/wrong-password") {
+				setError("Invalid password. Please try again.");
+			} else if (error.code === "auth/user-not-found") {
+				setError("No account found with this email.");
+			} else {
+				setError("Something went wrong. Please try again.");
+			}
 		} else {
-			setError("Something went wrong. Please try again.");
+			setError("Unexpected error. Please try again.");
 		}
 		return false;
 	}
@@ -55,7 +60,7 @@ export default function Login() {
 					<div className="form-field">
 						<label className="form-label">Email address</label>
 						<input
-							placeholder="Type here"
+							placeholder="john.smith@insitution.com"
 							type="email"
 							className="input input-block"
 							value={email}
@@ -66,7 +71,7 @@ export default function Login() {
 						<label className="form-label">Password</label>
 						<div className="form-control">
 							<input
-								placeholder="Type here"
+								placeholder="********"
 								type="password"
 								className="input input-block"
 								value={password}
@@ -74,6 +79,12 @@ export default function Login() {
 							/>
 						</div>
 					</div>
+
+						<div className="form-control justify-between">
+							<Link href="/forgotPassword" className="link link-underline-hover link-primary text-sm">
+								Forgot password?
+							</Link>
+						</div>
 
 					{error && <p className="text-red-500">{error}</p>}
 
@@ -92,7 +103,7 @@ export default function Login() {
 					<div className="form-field">
 						<div className="form-control justify-center">
 							<Link href="/register" className="link link-underline-hover link-primary text-sm">
-								Don't have an account yet? Sign up.
+								Don&apos;t have an account yet? Sign up.
 							</Link>
 						</div>
 					</div>

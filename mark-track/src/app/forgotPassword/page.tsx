@@ -2,9 +2,9 @@
 
 import {useEffect, useState} from 'react';
 import Link from 'next/link';
-import { sendPasswordResetEmail, fetchSignInMethodsForEmail } from 'firebase/auth';
+import { sendPasswordResetEmail} from 'firebase/auth';
 import {auth, db} from '@/config/firebaseConfig';
-import {collection, getDocs, onSnapshot, where} from "@firebase/firestore";
+import {collection,  onSnapshot, } from "@firebase/firestore";
 
 
 export default function ForgotPassword() {
