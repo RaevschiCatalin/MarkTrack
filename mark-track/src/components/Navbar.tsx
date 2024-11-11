@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { useAuth } from '@/context/AuthContext'
-import Image from "next/image";
+
 
 export default function Navbar() {
     const { isLoggedIn, logout } = useAuth()
@@ -50,7 +50,7 @@ export default function Navbar() {
                         </li>
                         <li className="navbar-item">
                             <button
-                                className="btn btn-rounded bg-[#A2D9A9] text-[#2E2E2E] hover:bg-[#F5C200] hover:text-black transition-colors"
+                                className="btn btn-rounded bg-green-9 text-[#f2f2f2] font-bold hover:bg-[#F5C200] hover:text-black transition-colors"
                                 onClick={logout}
                             >
                                 Logout
@@ -61,16 +61,17 @@ export default function Navbar() {
                     <>
                         <li className="navbar-item">
                             <Link href="/register"
-                                  className="btn btn-rounded bg-transparent text-[#4A90E2] border-[#4A90E2] hover:bg-[#F5C200] hover:text-white font-bold transition-colors">
+                                  className="btn btn-rounded bg-green-9 text-white border-green-9 hover:bg-white hover:text-black hover:border-green-9 hover:border-2 font-bold transition-colors">
                                 Register
                             </Link>
                         </li>
                         <li className="navbar-item">
                             <Link href="/login"
-                                  className="btn btn-rounded bg-[#4A90E2] text-white hover:bg-[#F5C200] font-bold transition-colors">
+                                  className="btn btn-rounded bg-transparent text-green-9 border-green-9 border-2 hover:bg-green-9 hover:text-white hover:border-green-9 font-bold transition-colors">
                                 Login
                             </Link>
                         </li>
+
                     </>
                 )}
             </ul>
