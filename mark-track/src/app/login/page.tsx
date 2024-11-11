@@ -2,24 +2,37 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { signInWithEmailAndPassword } from "firebase/auth";
 import { useRouter } from 'next/navigation';
-import { auth } from "@/config/firebaseConfig";
 import { FirebaseError } from 'firebase/app';
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { auth } from "@/config/firebaseConfig";
+import axios from 'axios';
 
-const handleLogin = async (email: string, password: string, setError: (msg: string) => void) => {
+type SetError = (msg: string) => void;
+
+const handleLogin = async (
+	email: string,
+	password: string,
+	setError: SetError
+): Promise<boolean> => {
 	try {
 		const userCredential = await signInWithEmailAndPassword(auth, email, password);
 		const user = userCredential.user;
+
 		if (!user.emailVerified) {
 			setError("Please verify your email address before logging in.");
 			return false;
 		}
-		const token = await userCredential.user.getIdToken();
-		console.log("JWT Token:", token);
-		localStorage.setItem("jwtToken", token);
-		return true;
-	} catch (error: unknown) {
+
+		const firebaseToken = await user.getIdToken();
+		console.log(firebaseToken);
+		const response = await axios.post("http://0.0.0.0:8000/login", { token: firebaseToken });
+
+		if (response.status === 200) {
+			localStorage.setItem("jwtToken", response.data.access_token);
+			return true;
+		}
+	} catch (error: any) {
 		if (error instanceof FirebaseError) {
 			if (error.code === "auth/wrong-password") {
 				setError("Invalid password. Please try again.");
@@ -28,11 +41,20 @@ const handleLogin = async (email: string, password: string, setError: (msg: stri
 			} else {
 				setError("Something went wrong. Please try again.");
 			}
+		} else if (axios.isAxiosError(error)) {
+			if (Array.isArray(error.response?.data?.detail)) {
+				// Handle multiple errors
+				const errorMessages = error.response?.data?.detail.map((err: any) => err.msg).join(", ");
+				setError(errorMessages || "An error occurred. Please try again.");
+			} else {
+				setError(error.response?.data?.detail || "An error occurred. Please try again.");
+			}
 		} else {
 			setError("Unexpected error. Please try again.");
 		}
 		return false;
 	}
+	return false;
 };
 
 export default function Login() {
@@ -57,56 +79,33 @@ export default function Login() {
 					<p className="text-sm">Sign in to access your account</p>
 				</div>
 				<div className="form-group">
-					<div className="form-field">
-						<label className="form-label">Email address</label>
-						<input
-							placeholder="john.smith@insitution.com"
-							type="email"
-							className="input input-block"
-							value={email}
-							onChange={(e) => setEmail(e.target.value)}
-						/>
-					</div>
-					<div className="form-field">
-						<label className="form-label">Password</label>
-						<div className="form-control">
-							<input
-								placeholder="********"
-								type="password"
-								className="input input-block"
-								value={password}
-								onChange={(e) => setPassword(e.target.value)}
-							/>
-						</div>
-					</div>
-
-						<div className="form-control justify-between">
-							<Link href="/forgotPassword" className="link link-underline-hover link-primary text-sm">
-								Forgot password?
-							</Link>
-						</div>
-
-					{error && <p className="text-red-500">{error}</p>}
-
-					<div className="form-field pt-5">
-						<div className="form-control justify-between">
-							<button
-								type="button"
-								className="btn btn-primary w-full"
-								onClick={onSubmit}
-							>
-								Sign in
-							</button>
-						</div>
-					</div>
-
-					<div className="form-field">
-						<div className="form-control justify-center">
-							<Link href="/register" className="link link-underline-hover link-primary text-sm">
-								Don&apos;t have an account yet? Sign up.
-							</Link>
-						</div>
-					</div>
+					<input
+						placeholder="Email address"
+						type="email"
+						value={email}
+						onChange={(e) => setEmail(e.target.value)}
+						className="input"
+					/>
+					<input
+						placeholder="Password"
+						type="password"
+						value={password}
+						onChange={(e) => setPassword(e.target.value)}
+						className="input"
+					/>
+					{error && Array.isArray(error) ? (
+						<ul className="text-red-500">
+							{error.map((err, index) => (
+								<li key={index}>{err}</li>
+							))}
+						</ul>
+					) : (
+						error && <p className="text-red-500">{error}</p>
+					)}
+					<button onClick={onSubmit} className="btn btn-primary w-full">
+						Sign in
+					</button>
+					<Link href="/register">Don&apos;t have an account yet? Sign up.</Link>
 				</div>
 			</div>
 		</div>
