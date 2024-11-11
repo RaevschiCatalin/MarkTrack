@@ -10,7 +10,7 @@ export default function Home() {
     }, []);
 
     return (
-        <div className="bg-gradient-to-b from-indigo-50 to-indigo-100 min-h-screen flex flex-col items-center text-gray-800 font-sans">
+        <div className="!bg-[#f2f2f2] from-indigo-50 to-indigo-100 min-h-screen flex flex-col items-center text-gray-800 font-sans">
             <header className="sticky top-0 w-full bg-indigo-900 text-white p-5 flex justify-between items-center">
                 <div className="text-2xl font-bold">marktrack</div>
                 <nav className="space-x-6 text-lg">
