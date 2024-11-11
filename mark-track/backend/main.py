@@ -20,13 +20,13 @@ except ValueError:
 # CORS middleware configuration
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],  # Allow your frontend URL
+    allow_origins=["http://localhost:3000"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Load environment variables
+
 load_dotenv(dotenv_path='./credentials/.env')
 SECRET_KEY = os.getenv("SECRET_KEY")
 ALGORITHM = "HS256"
@@ -39,11 +39,10 @@ def create_jwt_token(email: str):
     return token
 
 
-
 @app.post("/login")
 async def login(data: LoginData):
     try:
-        decoded_token = auth.verify_id_token(data.token)
+        decoded_token = auth.verify_id_token(data.token,clock_skew_seconds=3)
         email = decoded_token.get("email")
         jwt_token = create_jwt_token(email)
         return {"access_token": jwt_token, "token_type": "bearer"}

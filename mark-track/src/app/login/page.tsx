@@ -1,73 +1,25 @@
-"use client";
+
+'use client'
 
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { FirebaseError } from 'firebase/app';
-import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth } from "@/config/firebaseConfig";
-import axios from 'axios';
-
-type SetError = (msg: string) => void;
-
-const handleLogin = async (
-	email: string,
-	password: string,
-	setError: SetError
-): Promise<boolean> => {
-	try {
-		const userCredential = await signInWithEmailAndPassword(auth, email, password);
-		const user = userCredential.user;
-
-		if (!user.emailVerified) {
-			setError("Please verify your email address before logging in.");
-			return false;
-		}
-
-		const firebaseToken = await user.getIdToken();
-		console.log(firebaseToken);
-		const response = await axios.post("http://0.0.0.0:8000/login", { token: firebaseToken });
-
-		if (response.status === 200) {
-			localStorage.setItem("jwtToken", response.data.access_token);
-			return true;
-		}
-	} catch (error: any) {
-		if (error instanceof FirebaseError) {
-			if (error.code === "auth/wrong-password") {
-				setError("Invalid password. Please try again.");
-			} else if (error.code === "auth/user-not-found") {
-				setError("No account found with this email.");
-			} else {
-				setError("Something went wrong. Please try again.");
-			}
-		} else if (axios.isAxiosError(error)) {
-			if (Array.isArray(error.response?.data?.detail)) {
-				// Handle multiple errors
-				const errorMessages = error.response?.data?.detail.map((err: any) => err.msg).join(", ");
-				setError(errorMessages || "An error occurred. Please try again.");
-			} else {
-				setError(error.response?.data?.detail || "An error occurred. Please try again.");
-			}
-		} else {
-			setError("Unexpected error. Please try again.");
-		}
-		return false;
-	}
-	return false;
-};
+import { useAuth } from '@/context/AuthContext';
 
 export default function Login() {
 	const [email, setEmail] = useState('');
 	const [password, setPassword] = useState('');
 	const [error, setError] = useState<string | null>(null);
 	const router = useRouter();
+	const { login } = useAuth();
 
 	const onSubmit = async () => {
 		setError(null);
-		const success = await handleLogin(email, password, setError);
-		if (success) {
+		const result = await login(email, password);
+		if (result.success) {
 			router.push('/dashboard');
+		} else {
+			setError(result.message || "Login failed. Please try again.");
 		}
 	};
 
@@ -93,15 +45,7 @@ export default function Login() {
 						onChange={(e) => setPassword(e.target.value)}
 						className="input"
 					/>
-					{error && Array.isArray(error) ? (
-						<ul className="text-red-500">
-							{error.map((err, index) => (
-								<li key={index}>{err}</li>
-							))}
-						</ul>
-					) : (
-						error && <p className="text-red-500">{error}</p>
-					)}
+					{error && <p className="text-red-500">{error}</p>}
 					<button onClick={onSubmit} className="btn btn-primary w-full">
 						Sign in
 					</button>

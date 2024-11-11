@@ -3,6 +3,7 @@ import localFont from "next/font/local";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import {AuthProvider} from "@/context/AuthContext";
 
 const geistSans = localFont({
   src: "../fonts/GeistVF.woff",
@@ -31,11 +32,13 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/rippleui@1.12.1/dist/css/styles.css"/>
+        <AuthProvider>
         <main>
           <Navbar/>
           {children}
           <Footer/>
         </main>
+        </AuthProvider>
       </body>
     </html>
   );

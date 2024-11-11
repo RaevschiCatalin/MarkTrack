@@ -2,22 +2,15 @@
 
 import Link from 'next/link'
 import Image from 'next/image'
-import { useEffect, useState } from 'react'
+import { useAuth } from '@/context/AuthContext'
+
+
 
 export default function Navbar() {
-    const [isLoggedIn, setIsLoggedIn] = useState(false)
-
-    useEffect(() => {
-        const token = localStorage.getItem('jwtToken')
-        if (token) {
-            setIsLoggedIn(true)
-        } else {
-            setIsLoggedIn(false)
-        }
-    }, [])
+    const { isLoggedIn, logout } = useAuth()
 
     return (
-        <nav className="navbar navbar-no-boxShadow navbar-bordered navbar-sticky">
+        <nav className="navbar navbar-no-boxShadow navbar-bordered navbar-sticky bg-transparent ">
             <div className="navbar-start">
                 <Link href="/">
                     <Image
@@ -27,45 +20,38 @@ export default function Navbar() {
                         height={158}
                     />
                 </Link>
-                <ul className="navbar-end">
-                    {isLoggedIn ? (
-                        <>
-                            <li className="navbar-item">
-                                <Link href="/dashboard" className="text-bold">Dashboard</Link>
-                            </li>
-                            <li className="navbar-item">
-                                <Link href="/profile">
-                                    <button className="btn btn-rounded btn-outline">Profile</button>
-                                </Link>
-                            </li>
-                            <li className="navbar-item">
-                                <button
-                                    className="btn btn-rounded btn-secondary"
-                                    onClick={() => {
-                                        localStorage.removeItem('jwtToken')
-                                        setIsLoggedIn(false)
-                                    }}
-                                >
-                                    Logout
-                                </button>
-                            </li>
-                        </>
-                    ) : (
-                        <>
-                            <li className="navbar-item">
-                                <button className="btn btn-rounded btn-outline">
-                                    <Link href="/register" className="text-bold">Register</Link>
-                                </button>
-                            </li>
-                            <li className="navbar-item">
-                                <button className="btn btn-rounded btn-secondary">
-                                    <Link href="/login" className="text-bold">Login</Link>
-                                </button>
-                            </li>
-                        </>
-                    )}
-                </ul>
             </div>
+            <ul className="navbar-end flex items-center gap-4">
+                {isLoggedIn ? (
+                    <>
+                        <li className="navbar-item">
+                            <Link href="/dashboard" className="text-bold">Dashboard</Link>
+                        </li>
+                        <li className="navbar-item">
+                            <Link href="/profile">
+                                <Image src={"/profile.svg"} alt={"Profile"} height={32} width={32}></Image>
+                            </Link>
+                        </li>
+                        <li className="navbar-item">
+                            <button
+                                className="btn btn-rounded btn-secondary"
+                                onClick={logout}
+                            >
+                                Logout
+                            </button>
+                        </li>
+                    </>
+                ) : (
+                    <>
+                        <li className="navbar-item">
+                            <Link href="/register" className="btn btn-rounded btn-outline text-bold">Register</Link>
+                        </li>
+                        <li className="navbar-item">
+                            <Link href="/login" className="btn btn-rounded btn-secondary text-bold">Login</Link>
+                        </li>
+                    </>
+                )}
+            </ul>
         </nav>
     )
 }
