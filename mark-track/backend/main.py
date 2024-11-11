@@ -6,7 +6,7 @@ from starlette.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 import jwt
 
-from backend.models.login_data import LoginData
+from models.login_data import LoginData
 
 # FastAPI app initialization
 app = FastAPI()
