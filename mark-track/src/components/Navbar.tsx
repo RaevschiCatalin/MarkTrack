@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { useAuth } from '@/context/AuthContext'
+import Image from "next/image";
 
 
 export default function Navbar() {
@@ -11,7 +12,7 @@ export default function Navbar() {
         <nav className="navbar navbar-no-boxShadow navbar-bordered navbar-sticky !bg-[#F2F2F2] shadow-md">
             <div className="navbar-start">
                 <Link href="/">
-                    <img
+                    <Image
                         src="/logo.png"
                         alt="MarkTrack Logo"
                         width={158}
@@ -61,7 +62,7 @@ export default function Navbar() {
                     <>
                         <li className="navbar-item">
                             <Link href="/register"
-                                  className="btn btn-rounded bg-green-9 text-white border-green-9 hover:bg-white hover:text-black hover:border-green-9 hover:border-2 font-bold transition-colors">
+                                  className="btn btn-rounded bg-green-9 text-white border-green-9 hover:bg-transparent hover:text-black hover:border-green-9 hover:border-2 font-bold transition-colors">
                                 Register
                             </Link>
                         </li>

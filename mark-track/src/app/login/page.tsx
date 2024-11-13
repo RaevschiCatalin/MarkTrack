@@ -25,7 +25,7 @@ export default function Login() {
 
 	return (
 		<div className="flex justify-center items-center h-screen pb-10">
-			<div className="mx-auto flex w-full max-w-sm flex-col gap-6">
+			<div className="mx-auto flex w-full max-w-sm flex-col  gap-6">
 				<div className="flex flex-col items-center">
 					<h1 className="text-3xl font-semibold">Sign In</h1>
 					<p className="text-sm">Sign in to access your account</p>
@@ -45,8 +45,11 @@ export default function Login() {
 						onChange={(e) => setPassword(e.target.value)}
 						className="input"
 					/>
+					<div className="">
+						<Link href="/forgotPassword" className="text-[#4A90E2]">Forgot password?</Link>
+					</div>
 					{error && <p className="text-red-500">{error}</p>}
-					<button onClick={onSubmit} className="btn btn-primary w-full">
+					<button onClick={onSubmit} className="btn w-2/3 ">
 						Sign in
 					</button>
 					<Link href="/register">Don&apos;t have an account yet? Sign up.</Link>
