@@ -1,4 +1,4 @@
-'use client'
+'use client';
 
 import { useState } from 'react';
 import Link from 'next/link';
@@ -7,7 +7,7 @@ import { auth } from '@/config/firebaseConfig';
 import { doc, setDoc } from 'firebase/firestore';
 import { db } from '@/config/firebaseConfig';
 import { useRouter } from 'next/navigation';
-
+import { FirebaseError } from 'firebase/app';
 
 export default function Register() {
 	const [email, setEmail] = useState('');
@@ -41,8 +41,12 @@ export default function Register() {
 			await sendEmailVerification(userCredential.user);
 			setMessage("Registration successful! Check your email to verify your account.");
 			setTimeout(() => router.push('/login'), 3000);
-		} catch (error: any) {
-			setError(`Registration failed: ${error.message}`);
+		} catch (error: unknown) {
+			if (error instanceof FirebaseError) {
+				setError(`Registration failed: ${error.message}`);
+			} else {
+				setError("Unexpected error. Please try again.");
+			}
 		}
 	};
 
@@ -100,8 +104,8 @@ export default function Register() {
 								onChange={() => setTermsAccepted(!termsAccepted)}
 							/>
 							<span className="ml-2">
-								I agree to the <Link href="/terms" className="link link-primary">terms and conditions</Link>.
-							</span>
+                I agree to the <Link href="/terms" className="link link-primary">terms and conditions</Link>.
+              </span>
 						</label>
 					</div>
 					<div className="form-field pt-5">
