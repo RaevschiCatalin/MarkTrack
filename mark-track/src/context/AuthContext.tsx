@@ -46,6 +46,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
             }
 
             const firebaseToken = await user.getIdToken();
+            console.log(firebaseToken);
             const response = await axios.post<LoginResponse>("http://0.0.0.0:8000/login", { token: firebaseToken });
 
             if (response.status === 200) {
