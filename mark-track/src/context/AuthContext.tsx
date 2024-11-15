@@ -23,7 +23,7 @@ interface LoginResponse {
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
+const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
 export const AuthProvider = ({ children }: AuthProviderProps) => {
     const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
     const [accessToken, setAccessToken] = useState<string | null>(null);
@@ -47,7 +47,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
             const firebaseToken = await user.getIdToken();
             console.log(firebaseToken);
-            const response = await axios.post<LoginResponse>("http://0.0.0.0:8000/login", { token: firebaseToken });
+            const response = await axios.post<LoginResponse>(`${apiBaseUrl}/login`, { token: firebaseToken });
 
             if (response.status === 200) {
                 const token = response.data.access_token;
