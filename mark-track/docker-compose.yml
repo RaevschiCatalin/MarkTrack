@@ -12,15 +12,16 @@ services:
     depends_on:
       - backend
     environment:
-      NEXT_PUBLIC_BACKEND_URL: "http://backend:8000"
+      - NEXT_PUBLIC_API_BASE_URL=http://127.0.0.1:8080
 
   backend:
     build:
       context: ./backend
       dockerfile: Dockerfile.backend
     ports:
-      - "8000:8000"
+      - "8080:8080"
     volumes:
+      - ./backend:/app
       - ./backend/credentials:/app/credentials
     environment:
       - GOOGLE_APPLICATION_CREDENTIALS=/app/credentials/marktrack-655e8-firebase-adminsdk-uev46-1af6e0dced.json
