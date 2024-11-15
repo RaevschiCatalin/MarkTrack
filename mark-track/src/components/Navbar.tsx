@@ -9,7 +9,7 @@ export default function Navbar() {
     const { isLoggedIn, logout } = useAuth()
 
     return (
-        <nav className="navbar navbar-no-boxShadow navbar-bordered navbar-sticky !bg-[#F2F2F2] shadow-md">
+        <nav className="navbar navbar-no-boxShadow navbar-bordered navbar-sticky !bg-[#ffff] shadow-md">
             <div className="navbar-start">
                 <Link href="/">
                     <Image
