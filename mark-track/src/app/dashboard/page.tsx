@@ -1,10 +1,7 @@
+"use client"
 
-
-export default function Home() {
-    return (
-        <div className="pt-20 px-2">
-            <h1 className="text-3xl font-bold">Dashboard</h1>
-
-        </div>
-    );
+export default function Dashboard() {
+    <div className="flex justify-center items-center h-screen pb-10">
+        
+    </div>
 }

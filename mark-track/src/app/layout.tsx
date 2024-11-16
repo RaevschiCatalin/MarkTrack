@@ -33,7 +33,7 @@ export default function RootLayout({
       >
 
         <AuthProvider>
-        <main className="text-black bg-[#f2f2f2]">
+        <main className="text-black">
           <Navbar/>
           {children}
           <Footer/>
