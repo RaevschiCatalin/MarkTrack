@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react';
+"use client"
+import { useEffect, useState } from 'react';
 import { CSSProperties } from 'react';
 import { collection, getDocs, doc, getDoc, QueryDocumentSnapshot } from 'firebase/firestore';
 import { db } from '../../config/firebaseConfig';
@@ -14,7 +15,7 @@ interface Subject {
   name: string;
 }
 
-const Notifications: React.FC = () => {
+const Page: React.FC = () => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
 
   useEffect(() => {
@@ -117,4 +118,4 @@ const styles: Record<string, CSSProperties> = {
   },
 };
 
-export default Notifications;
+export default Page;
