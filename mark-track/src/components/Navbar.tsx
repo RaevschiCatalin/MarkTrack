@@ -4,7 +4,6 @@ import Link from 'next/link'
 import { useAuth } from '@/context/AuthContext'
 import Image from "next/image";
 
-
 export default function Navbar() {
     const { isLoggedIn, logout } = useAuth()
 
@@ -20,7 +19,8 @@ export default function Navbar() {
                     />
                 </Link>
             </div>
-            <ul className="navbar-end flex items-center gap-4">
+            {/* Regular navbar links visible on larger screens */}
+            <ul className="navbar-end flex items-center gap-4 lg:flex">
                 {isLoggedIn ? (
                     <>
                         <li className="navbar-item">
@@ -72,10 +72,30 @@ export default function Navbar() {
                                 Login
                             </Link>
                         </li>
-
                     </>
                 )}
             </ul>
+
+            {/* Dropdown for smaller screens */}
+            <div className="lg:hidden">
+                <div className="dropdown">
+                    <label className="btn btn-solid-primary my-2" tabIndex={0}>Menu</label>
+                    <div className="dropdown-menu dropdown-menu-bottom-left">
+                        {isLoggedIn ? (
+                            <>
+                                <Link href="/profile" className="dropdown-item text-sm">Profile</Link>
+                                <Link href="/dashboard" className="dropdown-item text-sm">Dashboard</Link>
+                                <button onClick={logout} className="dropdown-item text-sm">Logout</button>
+                            </>
+                        ) : (
+                            <>
+                                <Link href="/register" className="dropdown-item text-sm">Register</Link>
+                                <Link href="/login" className="dropdown-item text-sm">Login</Link>
+                            </>
+                        )}
+                    </div>
+                </div>
+            </div>
         </nav>
-    )
+    );
 }
