@@ -20,7 +20,7 @@ export default function Navbar() {
                 </Link>
             </div>
             {/* Regular navbar links visible on larger screens */}
-            <ul className="navbar-end flex items-center gap-4 lg:flex">
+            <ul className="navbar-end flex items-center gap-4 hidden md:flex">
                 {isLoggedIn ? (
                     <>
                         <li className="navbar-item">
@@ -77,9 +77,13 @@ export default function Navbar() {
             </ul>
 
             {/* Dropdown for smaller screens */}
-            <div className="lg:hidden">
+            <div className="md:hidden">
                 <div className="dropdown">
-                    <label className="btn btn-solid-primary my-2" tabIndex={0}>Menu</label>
+                    <label className="btn btn-solid-primary my-2" tabIndex={0}>
+                        <svg className="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                            <path stroke="currentColor" strokeLinecap="round" strokeWidth="2" d="M5 7h14M5 12h14M5 17h14"/>
+                        </svg>
+                    </label>
                     <div className="dropdown-menu dropdown-menu-bottom-left">
                         {isLoggedIn ? (
                             <>
