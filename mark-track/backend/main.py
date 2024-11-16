@@ -41,7 +41,6 @@ def create_jwt_token(email: str):
 
 @app.post("/login")
 async def login(data: LoginData):
-    print(f"Received token (type: {type(data.token)}): {data.token}")  # Debugging line
     try:
         if not isinstance(data.token, str):
             raise ValueError("The token must be a string.")
