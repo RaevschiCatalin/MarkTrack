@@ -41,8 +41,11 @@ def create_jwt_token(email: str):
 
 @app.post("/login")
 async def login(data: LoginData):
+    print(f"Received token (type: {type(data.token)}): {data.token}")  # Debugging line
     try:
-        decoded_token = auth.verify_id_token(data.token,clock_skew_seconds=3)
+        if not isinstance(data.token, str):
+            raise ValueError("The token must be a string.")
+        decoded_token = auth.verify_id_token(data.token,clock_skew_seconds=60)
         email = decoded_token.get("email")
         jwt_token = create_jwt_token(email)
         return {"access_token": jwt_token, "token_type": "bearer"}
