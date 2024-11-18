@@ -86,15 +86,15 @@ export default function Dashboard() {
                 {selectedClass && (
                     <div className="my-4">
                         <h2 className="text-2xl font-bold mb-4">{selectedClass}</h2>
-                        <table className="min-w-full bg-white border border-gray-200 rounded-lg shadow-lg">
+                        <table className="min-w-full bg-white border border-gray-200 rounded-lg shadow-lg table-compact table">
                             <thead className="bg-gray-100 border-b border-gray-300">
                                 <tr>
                                     <th className="px-4 py-2 text-left">No. crt</th>
                                     <th className="px-4 py-2 text-left">First Name</th>
-                                    <th className="px-4 py-2 text-left">Last Nme</th>
+                                    <th className="px-4 py-2 text-left">Last Name</th>
                                     <th className="px-4 py-2 text-left">Grades</th>
                                     <th className="px-4 py-2 text-left">Absences</th>
-                                    <th className="px-4 py-2 text-center">Action</th>
+                                    <th className="px-4 py-2 text-center">Add</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -111,7 +111,7 @@ export default function Dashboard() {
                                                     setModalData({ ...person, index });
                                                     setFormData({ grade: "", gradeDate: "", absences: "", absencesDate: "" });
                                                 }}
-                                                className="text-blue-500 hover:text-blue-700"
+                                                className="btn btn-primary btn-rounded text-white"
                                             >
                                                 +
                                             </button>
