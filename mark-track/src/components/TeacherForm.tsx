@@ -10,13 +10,13 @@ interface Subject {
 }
 
 export default function TeacherForm() {
-    const uid : string | null = localStorage.getItem('uid');
+    const uid: string = localStorage.getItem('uid') || '';
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
     const [fatherName, setFatherName] = useState('');
     const [govId, setGovId] = useState('');
     const [subjects, setSubjects] = useState<Subject[]>([]);
-    const [selectedSubject, setSelectedSubject] = useState<string | null>(null);
+    const [selectedSubject, setSelectedSubject] = useState<string | null>("");
     const [message, setMessage] = useState('');
     const [error, setError] = useState('');
     const router = useRouter();
@@ -31,7 +31,7 @@ export default function TeacherForm() {
                 } else {
                     setError('Unexpected data format received.');
                 }
-            } catch (e: unknown) {
+            } catch {
                 setError('Failed to load subjects.');
             }
         };
@@ -63,7 +63,7 @@ export default function TeacherForm() {
             setTimeout(()=>{
                 router.push("/login");
             },2000);
-        } catch (e:unknown) {
+        } catch  {
             setError('Failed to submit teacher details.');
         }
     };
@@ -115,7 +115,7 @@ export default function TeacherForm() {
                 <label>Subject</label>
                 <select
 
-                    value={selectedSubject}
+                    value={selectedSubject || ""}
                     onChange={(e) => setSelectedSubject(e.target.value)}
                     className="input input-block"
                 >

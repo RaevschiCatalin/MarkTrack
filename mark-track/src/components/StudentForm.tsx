@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation';
 export default function StudentForm() {
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
+    const [fatherName, setFatherName] = useState('');
     const [govId, setGovId] = useState('');
     const [message, setMessage] = useState('');
     const [error, setError] = useState('');
@@ -14,7 +15,7 @@ export default function StudentForm() {
     const uid = localStorage.getItem("uid");
 
     const handleSubmit = async () => {
-        if (!firstName || !lastName || !govId) {
+        if (!firstName || !lastName || !fatherName || !govId) {
             setError('All fields are required.');
             return;
         }
@@ -22,15 +23,17 @@ export default function StudentForm() {
             const payload = {
                 "first_name":firstName,
                 "last_name":lastName,
+                "father_name": fatherName,
                 "gov_number":govId,
                 "uid": uid
             };
+
             await postRequest('/complete-student-details', payload);
             setMessage('Student details submitted successfully!');
             setTimeout(()=>{
                 router.push("/login");
             },2000);
-        } catch (e) {
+        } catch {
             setError('Failed to submit student details.');
         }
     };
@@ -56,6 +59,16 @@ export default function StudentForm() {
                     className="input input-block"
                     value={lastName}
                     onChange={(e) => setLastName(e.target.value)}
+                />
+            </div>
+            <div className="form-field">
+                <label>Father&apos;s Name</label>
+                <input
+                    type="text"
+                    placeholder="Enter father's name"
+                    className="input input-block"
+                    value={fatherName}
+                    onChange={(e) => setFatherName(e.target.value)}
                 />
             </div>
             <div className="form-field">

@@ -11,3 +11,10 @@ try:
     print("Firebase app initialized successfully")
 except Exception as e:
     print(f"Error initializing Firebase: {e}")
+
+def get_user_by_email(email: str):
+    user_ref = db.collection("users").where("email", "==", email).limit(1).get()
+    if user_ref:
+        return user_ref[0].to_dict()
+    else:
+        return None

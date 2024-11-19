@@ -1,60 +1,140 @@
+"use client";
 
-'use client'
-
-import { useState } from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { useAuth } from '@/context/AuthContext';
+import { useAuth } from "@/context/AuthContext";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { motion } from "framer-motion";
+import { postRequest } from "@/context/api";
+import Loader from "@/components/Loader";
 
 export default function Profile() {
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [error, setError] = useState<string | null>(null);
+    const { userRole, logout } = useAuth();
+    const [profileData, setProfileData] = useState<any>(null);
+    const [loading, setLoading] = useState(true);
     const router = useRouter();
-    const { login } = useAuth();
+    const uid = localStorage.getItem("uid");
 
-    const onSubmit = async () => {
-        setError(null);
-        const result = await login(email, password);
-        if (result.success) {
-            router.push('/dashboard');
-        } else {
-            setError(result.message || "Login failed. Please try again.");
-        }
+    useEffect(() => {
+        if (!userRole || !uid) return;
+
+        const fetchProfileData = async () => {
+            setLoading(true);
+            try {
+                let response;
+                const requestBody = { uid };
+
+                if (userRole === "student") {
+                    response = await postRequest('/get-student-profile', requestBody);
+                } else if (userRole === "teacher") {
+                    response = await postRequest('/get-teacher-profile', requestBody);
+                }
+
+                if (response) {
+                    setProfileData(response);
+                } else {
+                    console.error("Error fetching profile data.");
+                }
+            } catch (error) {
+                console.error("Failed to fetch profile:", error);
+            } finally {
+                setTimeout(() => setLoading(false), 1000);
+            }
+        };
+
+        fetchProfileData();
+    }, [userRole]);
+
+    const handleChangePassword = () => {
+        router.push("/forgotPassword");
     };
 
-    return (
-        <div className="flex justify-center items-center h-screen pb-10">
-            <div className="mx-auto flex w-full max-w-sm flex-col  gap-6">
-                <div className="flex flex-col items-center">
-                    <h1 className="text-3xl font-semibold">Sign In</h1>
-                    <p className="text-sm">Sign in to access your account</p>
-                </div>
-                <div className="form-group">
-                    <input
-                        placeholder="Email address"
-                        type="email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        className="input"
-                    />
-                    <input
-                        placeholder="Password"
-                        type="password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        className="input"
-                    />
-                    <div className="">
-                        <Link href="/forgotPassword" className="text-[#4A90E2]">Forgot password?</Link>
-                    </div>
-                    {error && <p className="text-red-500">{error}</p>}
-                    <button onClick={onSubmit} className="btn w-2/3 ">
-                        Sign in
-                    </button>
-                    <Link href="/register">Don&apos;t have an account yet? Sign up.</Link>
-                </div>
+    const handleLogout = () => {
+        logout();
+    };
+
+    if (loading) {
+        return (
+            <div className="min-h-screen flex justify-center items-center">
+                <Loader />
             </div>
+        );
+    }
+
+    return (
+        <div className="min-h-screen flex flex-col pt-24 items-center py-8 px-4">
+            <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 1 }}
+                className="bg-white p-6 rounded-lg shadow-lg w-full max-w-3xl"
+            >
+                <h1 className="text-2xl font-semibold mb-4 text-center">Welcome to your profile page, {profileData.first_name}</h1>
+
+                {profileData ? (
+                    <div className="space-y-4 text-center">
+                        {/* Name */}
+                        <div>
+                            <h2 className="text-lg font-bold text-gray-800">Full name:</h2>
+                            <p className="text-gray-600">
+                                {profileData.first_name} {profileData.last_name}
+                            </p>
+                        </div>
+
+                        {/* Email */}
+                        <div>
+                            <h2 className="text-lg font-bold text-gray-800">Email:</h2>
+                            <p className="text-gray-600">{profileData.email}</p>
+                        </div>
+
+                        {/* Role Specific Fields */}
+                        {userRole === "teacher" && profileData.subject_name && (
+                            <div>
+                                <h2 className="text-lg font-bold text-gray-800">Subject:</h2>
+                                <p className="text-gray-600">{profileData.subject_name}</p>
+                            </div>
+                        )}
+
+                        {userRole === "student" && profileData.student_id && (
+                            <div>
+                                <h2 className="text-lg font-bold text-gray-800">Student ID:</h2>
+                                <p className="text-gray-600">{profileData.student_id}</p>
+                            </div>
+                        )}
+
+                        {/* Additional Fields */}
+                        {profileData.father_name && (
+                            <div>
+                                <h2 className="text-lg font-bold text-gray-800">Father&apos;s Name:</h2>
+                                <p className="text-gray-600">{profileData.father_name}</p>
+                            </div>
+                        )}
+
+                        {profileData.gov_number && (
+                            <div>
+                                <h2 className="text-lg font-bold text-gray-800">Government Number:</h2>
+                                <p className="text-gray-600">{profileData.gov_number}</p>
+                            </div>
+                        )}
+
+                        <div className="flex gap-4 justify-center mt-6">
+                            <button
+                                onClick={handleChangePassword}
+                                className="px-6 py-2 bg-blue-600 text-white rounded-full font-bold transition hover:bg-indigo-700"
+                            >
+                                Change Password
+                            </button>
+                            <button
+                                onClick={handleLogout}
+                                className="px-6 py-2 bg-red-600 text-white rounded-full font-bold transition hover:bg-red-700"
+                            >
+                                Logout
+                            </button>
+                        </div>
+                    </div>
+                ) : (
+                    <p className="text-gray-600">No profile data available.</p>
+                )}
+            </motion.div>
         </div>
     );
 }

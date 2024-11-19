@@ -1,17 +1,17 @@
 import os
 import re
 from datetime import datetime, timedelta
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Header
 from firebase_admin import initialize_app, auth
 from starlette.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 import jwt
 
-from models.user import AssignRoleRequest,RegisterUserRequest
+from models.user import AssignRoleRequest, RegisterUserRequest, UserRequest
 from models.student import StudentDetails
 from models.teacher import TeacherDetails
 from models.login_data import LoginData
-from firebase_setup import db
+from firebase_setup import db,get_user_by_email
 
 # FastAPI app initialization
 app = FastAPI()
@@ -31,11 +31,13 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+TEACHER_CODE = "TEACHER123"
+STUDENT_CODE_PREFIX = "LTMV"
 
 load_dotenv(dotenv_path='./credentials/.env')
 SECRET_KEY = os.getenv("SECRET_KEY")
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
+ACCESS_TOKEN_EXPIRE_MINUTES = 3600
 
 def create_jwt_token(email: str):
     expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
@@ -49,16 +51,29 @@ async def login(data: LoginData):
     try:
         if not isinstance(data.token, str):
             raise ValueError("The token must be a string.")
+
         decoded_token = auth.verify_id_token(data.token,clock_skew_seconds=60)
         email = decoded_token.get("email")
-        jwt_token = create_jwt_token(email)
-        return {"access_token": jwt_token, "token_type": "bearer"}
-    except Exception as e:
-        print(f"Token verification failed: {e}")
-        raise HTTPException(status_code=401, detail="Invalid Firebase token.")
-TEACHER_CODE = "TEACHER123"
-STUDENT_CODE_PREFIX = "LTMV"
 
+        if not email:
+            raise HTTPException(status_code=400, detail="Email not found in token.")
+
+        user = get_user_by_email(email)
+
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found.")
+
+        role = user.get("role")
+        uid = auth.get_user_by_email(email).uid
+        jwt_token = create_jwt_token(email)
+        return {
+            "access_token": jwt_token,
+            "token_type": "bearer",
+            "role": role,
+            "uid": uid
+        }
+    except Exception as e:
+        raise HTTPException(status_code=401, detail="Invalid Firebase token.")
 
 
 @app.post("/register")
@@ -77,8 +92,8 @@ async def register_user(user_data: RegisterUserRequest):
 
 @app.post("/assign-role")
 async def assign_role(role_data: AssignRoleRequest):
-
     try:
+
         user_ref = db.collection("users").document(role_data.uid)
         user_doc = user_ref.get()
 
@@ -86,32 +101,29 @@ async def assign_role(role_data: AssignRoleRequest):
             raise HTTPException(status_code=404, detail="User not found.")
 
         if role_data.code == TEACHER_CODE:
-            db.collection("Teachers").document(role_data.uid).set(user_doc.to_dict()).update({"role":"teacher"})
+
+            db.collection("Teachers").document(role_data.uid).set(
+                {**user_doc.to_dict(), "role": "teacher"}, merge=True
+            )
             user_ref.update({"role": "teacher"})
             return {"message": "Teacher account created!"}
 
         elif role_data.code.startswith(STUDENT_CODE_PREFIX):
-            print("Entered regex loop")
-            if re.match(rf"^{STUDENT_CODE_PREFIX}\d{{4,5}}$", role_data.code):
-                student_id = role_data.code
-                print(f"Checking if any student has student_id = {student_id} in Students collection.")
-                try:
-                    matching_students = db.collection("Students").where("student_id", "==", student_id).stream()
-                    for student in matching_students:
-                        raise HTTPException(status_code=400, detail="Student ID already exists.")
 
-                    db.collection("Students").add({
-                        **user_doc.to_dict(),
-                        "role":"student",
-                        "student_id": student_id
-                    })
-                    user_ref.update({"role": "student"})
-                    return {"message": "Student account created!"}
-                except Exception as e:
-                    print(f"Error checking or adding student record: {e}")
-                    raise HTTPException(status_code=500, detail=f"Error processing student record: {e}")
-            else:
+            if not re.match(rf"^{STUDENT_CODE_PREFIX}\d{{4,5}}$", role_data.code):
                 raise HTTPException(status_code=400, detail="Invalid student code format.")
+
+            student_id = role_data.code
+            existing_students = db.collection("Students").where("student_id", "==", student_id).stream()
+            for _ in existing_students:
+                raise HTTPException(status_code=400, detail="Student ID already exists.")
+
+
+            db.collection("Students").document(role_data.uid).set(
+                {**user_doc.to_dict(), "role": "student", "student_id": student_id}, merge=True
+            )
+            user_ref.update({"role": "student"})
+            return {"message": "Student account created!"}
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error assigning role: {e}")
@@ -131,7 +143,7 @@ async def get_subjects():
 @app.post("/complete-teacher-details")
 async def complete_teacher_details(details: TeacherDetails):
     try:
-        print(f"Received: {details}")
+
         user_ref = db.collection("users").document(details.uid)
         user_doc = user_ref.get()
 
@@ -163,6 +175,7 @@ async def complete_teacher_details(details: TeacherDetails):
 @app.post("/complete-student-details")
 async def complete_student_details(details: StudentDetails):
     try:
+
         user_ref = db.collection("users").document(details.uid)
         user_doc = user_ref.get()
         if not user_doc.exists:
@@ -170,6 +183,7 @@ async def complete_student_details(details: StudentDetails):
         student_data = {
             "first_name": details.first_name,
             "last_name": details.last_name,
+            "father_name": details.father_name,
             "gov_number": details.gov_number,
             "updated_at": datetime.utcnow()
         }
@@ -179,6 +193,60 @@ async def complete_student_details(details: StudentDetails):
         return {"message": "Student details updated successfully."}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error updating student details: {e}")
+
+@app.post("/get-student-profile")
+async def get_student_profile(request: UserRequest):
+    try:
+        uid = request.uid
+
+        if not uid:
+            raise HTTPException(status_code=400, detail="UID not provided in the request body.")
+
+        student_ref = db.collection("Students").document(uid)
+        student_doc = student_ref.get()
+
+        if not student_doc.exists:
+            raise HTTPException(status_code=404, detail="Student profile not found.")
+
+        student_data = student_doc.to_dict()
+
+        return student_data
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error fetching student profile: {e}")
+
+@app.post("/get-teacher-profile")
+async def get_teacher_profile(request: UserRequest):
+    try:
+        uid = request.uid
+
+        if not uid:
+            raise HTTPException(status_code=400, detail="UID not provided in the request body.")
+
+        teacher_ref = db.collection("Teachers").document(uid)
+        teacher_doc = teacher_ref.get()
+
+        if not teacher_doc.exists:
+            raise HTTPException(status_code=404, detail="Teacher profile not found.")
+
+        teacher_data = teacher_doc.to_dict()
+
+
+        subject_id = teacher_data.get("subject_id")
+        if not subject_id:
+            raise HTTPException(status_code=400, detail="Subject ID not found for teacher.")
+
+        subject_ref = db.collection("Subjects").document(subject_id)
+        subject_doc = subject_ref.get()
+
+        if not subject_doc.exists:
+            raise HTTPException(status_code=404, detail="Subject not found.")
+
+        subject_data = subject_doc.to_dict()
+        teacher_data["subject_name"] = subject_data.get("name", "Unknown Subject")
+
+        return teacher_data
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error fetching teacher profile: {e}")
 
 @app.get("/")
 async def read_root():

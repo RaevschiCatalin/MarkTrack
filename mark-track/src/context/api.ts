@@ -24,3 +24,4 @@ export const getRequest = async (url: string) => {
         throw error;
     }
 };
+
