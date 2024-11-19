@@ -12,7 +12,7 @@ interface Student {
     absences: { date: string; motivated: boolean }[];
 }
 
-export default function Dashboard() {
+export default function TeacherDashboard() {
     const [selectedClass, setSelectedClass] = useState<string | null>(null);
     const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
     const [newGrade, setNewGrade] = useState<{ grade: string; date: string }>({ grade: "", date: "" });

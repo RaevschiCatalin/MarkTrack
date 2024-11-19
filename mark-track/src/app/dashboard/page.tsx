@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import {useAuth} from "@/context/AuthContext";
-
+import TeacherDashboard from "@/components/TeacherDashboard"
 
 export default function Dashboard() {
     const { userRole } = useAuth();//aici este variabila care determina rolul, poate fi sau student sau teacher
@@ -32,6 +32,9 @@ export default function Dashboard() {
         console.log("Form submitted", formData);
         setModalData(null); // Închide modalul după salvare
     };
+    if (userRole === "teacher") {
+        return <TeacherDashboard />;
+    }
 
     return (
         <div className="flex flex-row pt-20 h-screen overflow-y-auto">
