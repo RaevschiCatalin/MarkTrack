@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import AverageGradeChart from "@/components/AverageGradeChart"
+import AverageAbsenceChart from "@/components/AverageAbsenceChart";
 
 interface Student {
     firstName: string;
@@ -160,6 +162,7 @@ export default function TeacherDashboard() {
                                         </li>
                                     ))}
                                 </ul>
+                                
                             </section>
                         </nav>
                     </section>
@@ -301,7 +304,7 @@ export default function TeacherDashboard() {
                         <div className="overflow-x-auto">
                             <table className="min-w-full border-gray-300 table-compact table">
                                 <thead>
-                                    <tr>
+                                <tr>
                                         <th className="px-4 py-2 text-left">#</th>
                                         <th className="px-4 py-2 text-left">First Name</th>
                                         <th className="px-4 py-2 text-left">Last Name</th>
@@ -339,96 +342,106 @@ export default function TeacherDashboard() {
                         <h2 className="text-2xl font-bold text-blue-800 mb-4">
                             {selectedStudent.firstName} {selectedStudent.lastName}
                         </h2>
+                        <div className="mb-4">
+                            <h3 className="text-xl font-semibold mb-2">Grade Trend</h3>
+                            <AverageGradeChart grades={selectedStudent.grades}/>
+                        </div>
 
+                        <div className="mb-4">
+                            <h3 className="text-xl font-semibold mb-2">Absence Summary</h3>
+                            <AverageAbsenceChart absences={selectedStudent.absences}/>
+                        </div>
                         <h3 className="text-xl font-semibold mb-2">Grades:</h3>
                         <table className="min-w-full table-auto border border-gray-300 rounded-lg shadow-md mb-4">
                             <thead className="bg-blue-100 text-blue-800">
-                                <tr>
-                                    <th className="px-6 py-3 border border-gray-300 text-left">Grade</th>
-                                    <th className="px-6 py-3 border border-gray-300 text-left">Date</th>
-                                    <th className="px-6 py-3 border border-gray-300 text-left">Actions</th>
-                                </tr>
+                            <tr>
+                                <th className="px-6 py-3 border border-gray-300 text-left">Grade</th>
+                                <th className="px-6 py-3 border border-gray-300 text-left">Date</th>
+                                <th className="px-6 py-3 border border-gray-300 text-left">Actions</th>
+                            </tr>
                             </thead>
                             <tbody className="text-gray-700">
-                                {selectedStudent.grades.length > 0 ? (
-                                    selectedStudent.grades.map((grade, index) => (
-                                        <tr key={index} className="hover:bg-blue-50">
-                                            <td className="px-6 py-3 border border-gray-300">{grade.grade}</td>
-                                            <td className="px-6 py-3 border border-gray-300">{grade.date}</td>
-                                            <td className="px-6 py-3 border border-gray-300 text-center">
-                                                <button
-                                                    onClick={() => {
-                                                        setEditGrade(grade);
-                                                        setIsGradeModalOpen(true);
-                                                    }}
-                                                    className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"
-                                                >
-                                                    Edit
-                                                </button>
-                                                <button
-                                                    onClick={() => handleDeleteGrade(grade.date)}
-                                                    className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600"
-                                                >
-                                                    Delete
-                                                </button>
+                            {selectedStudent.grades.length > 0 ? (
+                                selectedStudent.grades.map((grade, index) => (
+                                    <tr key={index} className="hover:bg-blue-50">
+                                        <td className="px-6 py-3 border border-gray-300">{grade.grade}</td>
+                                        <td className="px-6 py-3 border border-gray-300">{grade.date}</td>
+                                        <td className="px-6 py-3 border border-gray-300 text-center">
+                                            <button
+                                                onClick={() => {
+                                                    setEditGrade(grade);
+                                                    setIsGradeModalOpen(true);
+                                                }}
+                                                className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"
+                                            >
+                                                Edit
+                                            </button>
+                                            <button
+                                                onClick={() => handleDeleteGrade(grade.date)}
+                                                className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600"
+                                            >
+                                                Delete
+                                            </button>
 
 
-                                            </td>
-                                        </tr>
-                                    ))
-                                ) : (
-                                    <tr>
-                                        <td colSpan={3} className="px-6 py-3 border border-gray-300 text-center text-gray-500">
-                                            No grades available.
                                         </td>
                                     </tr>
-                                )}
+                                ))
+                            ) : (
+                                <tr>
+                                    <td colSpan={3}
+                                        className="px-6 py-3 border border-gray-300 text-center text-gray-500">
+                                        No grades available.
+                                    </td>
+                                </tr>
+                            )}
                             </tbody>
                         </table>
 
                         <h3 className="text-xl font-semibold mb-2">Absences:</h3>
                         <table className="min-w-full table-auto border border-gray-300 rounded-lg shadow-md mb-4">
                             <thead className="bg-yellow-100 text-yellow-800">
-                                <tr>
-                                    <th className="px-6 py-3 border border-gray-300 text-left">Date</th>
-                                    <th className="px-6 py-3 border border-gray-300 text-left">Motivated</th>
-                                    <th className="px-6 py-3 border border-gray-300 text-left">Actions</th>
-                                </tr>
+                            <tr>
+                                <th className="px-6 py-3 border border-gray-300 text-left">Date</th>
+                                <th className="px-6 py-3 border border-gray-300 text-left">Motivated</th>
+                                <th className="px-6 py-3 border border-gray-300 text-left">Actions</th>
+                            </tr>
                             </thead>
                             <tbody className="text-gray-700">
-                                {selectedStudent.absences.length > 0 ? (
-                                    selectedStudent.absences.map((absence, index) => (
-                                        <tr key={index} className="hover:bg-yellow-50">
-                                            <td className="px-6 py-3 border border-gray-300">{absence.date}</td>
-                                            <td className="px-6 py-3 border border-gray-300">
-                                                {absence.motivated ? "Motivated" : "Unmotivated"}
-                                            </td>
-                                            <td className="px-6 py-3 border border-gray-300 text-center">
-                                                <button
-                                                    onClick={() => {
-                                                        setEditAbsence(absence);
-                                                        setIsAbsenceModalOpen(true);
-                                                    }}
-                                                    className="bg-yellow-500 text-white px-4 py-2 rounded-md hover:bg-yellow-600"
-                                                >
-                                                    Edit
-                                                </button>
-                                                <button
-                                                    className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600"
-                                                    onClick={() => handleDeleteAbsence(absence.date)}
-                                                >
-                                                    Delete
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    ))
-                                ) : (
-                                    <tr>
-                                        <td colSpan={3} className="px-6 py-3 border border-gray-300 text-center text-gray-500">
-                                            No absences available.
+                            {selectedStudent.absences.length > 0 ? (
+                                selectedStudent.absences.map((absence, index) => (
+                                    <tr key={index} className="hover:bg-yellow-50">
+                                        <td className="px-6 py-3 border border-gray-300">{absence.date}</td>
+                                        <td className="px-6 py-3 border border-gray-300">
+                                            {absence.motivated ? "Motivated" : "Unmotivated"}
+                                        </td>
+                                        <td className="px-6 py-3 border border-gray-300 text-center">
+                                            <button
+                                                onClick={() => {
+                                                    setEditAbsence(absence);
+                                                    setIsAbsenceModalOpen(true);
+                                                }}
+                                                className="bg-yellow-500 text-white px-4 py-2 rounded-md hover:bg-yellow-600"
+                                            >
+                                                Edit
+                                            </button>
+                                            <button
+                                                className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600"
+                                                onClick={() => handleDeleteAbsence(absence.date)}
+                                            >
+                                                Delete
+                                            </button>
                                         </td>
                                     </tr>
-                                )}
+                                ))
+                            ) : (
+                                <tr>
+                                    <td colSpan={3}
+                                        className="px-6 py-3 border border-gray-300 text-center text-gray-500">
+                                        No absences available.
+                                    </td>
+                                </tr>
+                            )}
                             </tbody>
                         </table>
 

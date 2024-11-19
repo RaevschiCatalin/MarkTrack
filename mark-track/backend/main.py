@@ -33,6 +33,7 @@ app.add_middleware(
 
 TEACHER_CODE = "TEACHER123"
 STUDENT_CODE_PREFIX = "LTMV"
+ADMIN_CODE = "ADMIN123"
 
 load_dotenv(dotenv_path='./credentials/.env')
 SECRET_KEY = os.getenv("SECRET_KEY")
@@ -124,7 +125,12 @@ async def assign_role(role_data: AssignRoleRequest):
             )
             user_ref.update({"role": "student"})
             return {"message": "Student account created!"}
-
+        elif role_data.code == ADMIN_CODE:
+            db.collection("Admins").document(role_data.uid).set(
+                {**user_doc.to_dict(), "role": "admin"}, merge=True
+            )
+            user_ref.update({"role": "admin"})
+            return {"message": "Admin account created!"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error assigning role: {e}")
 
