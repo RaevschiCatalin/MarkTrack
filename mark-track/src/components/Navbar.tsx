@@ -29,6 +29,13 @@ export default function Navbar() {
                             </Link>
                         </li>
                         <li className="navbar-item">
+                            <Link href="/notifications" className="group">
+                                <svg className="w-8 h-8 fill-transparent text-[#2E2E2E] group-hover:text-[#F5C200]" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                                    <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 5.365V3m0 2.365a5.338 5.338 0 0 1 5.133 5.368v1.8c0 2.386 1.867 2.982 1.867 4.175 0 .593 0 1.292-.538 1.292H5.538C5 18 5 17.301 5 16.708c0-1.193 1.867-1.789 1.867-4.175v-1.8A5.338 5.338 0 0 1 12 5.365ZM8.733 18c.094.852.306 1.54.944 2.112a3.48 3.48 0 0 0 4.646 0c.638-.572 1.236-1.26 1.33-2.112h-6.92Z"/>
+                                </svg>
+                            </Link>
+                        </li>
+                        <li className="navbar-item">
                             <Link href="/profile" className="group">
                                 <svg
                                     className="fill-current text-[#2E2E2E] group-hover:text-[#F5C200] transition-all"
@@ -41,7 +48,7 @@ export default function Navbar() {
                                     />
                                     {/* Inner Details (Lines) */}
                                     <path
-                                        className="group-hover:fill-[#A2D9A9]"
+                                        className="group-hover:fill-blue-500"
                                         d="m16 2a14 14 0 1 0 14 14 14.0158 14.0158 0 0 0 -14-14zm-6 24.3765v-1.3765a3.0033 3.0033 0 0 1 3-3h6a3.0033 3.0033 0 0 1 3 3v1.3765a11.8989 11.8989 0 0 1 -12 0zm13.9925-1.4507a5.0016 5.0016 0 0 0 -4.9925-4.9258h-6a5.0016 5.0016 0 0 0 -4.9925 4.9258 12 12 0 1 1 15.985 0z"
                                     />
                                     {/* Invisible Background */}
@@ -89,6 +96,7 @@ export default function Navbar() {
                             <>
                                 <Link href="/profile" className="dropdown-item text-sm">Profile</Link>
                                 <Link href="/dashboard" className="dropdown-item text-sm">Dashboard</Link>
+                                <Link href="/notifications" className="dropdown-item text-sm">Notifications</Link>
                                 <button onClick={logout} className="dropdown-item text-sm">Logout</button>
                             </>
                         ) : (

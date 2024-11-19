@@ -62,10 +62,10 @@ export default function StudentForm() {
                 />
             </div>
             <div className="form-field">
-                <label>Father&apos;s Name</label>
+                <label>Father&apos;s Initials</label>
                 <input
                     type="text"
-                    placeholder="Enter father's name"
+                    placeholder="Enter father's initials"
                     className="input input-block"
                     value={fatherName}
                     onChange={(e) => setFatherName(e.target.value)}

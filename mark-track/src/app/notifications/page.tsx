@@ -60,7 +60,7 @@ const Notifications: React.FC = () => {
     }, []);
 
     return (
-        <div className="p-6 max-w-xl mx-auto bg-gray-100 rounded-lg shadow-md">
+        <div className="p-6 max-w-xl mx-auto pt-20 bg-gray-100 rounded-lg shadow-md">
             <h2 className="text-2xl font-semibold text-center mb-4">Notifications</h2>
             <ul className="space-y-4">
                 {notifications.map((notification) => (
