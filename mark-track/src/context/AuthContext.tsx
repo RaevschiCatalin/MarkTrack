@@ -5,6 +5,7 @@ import axios, { AxiosError } from 'axios';
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "@/config/firebaseConfig";
 import { FirebaseError } from 'firebase/app';
+import { useRouter } from 'next/navigation';
 
 interface AuthContextType {
     isLoggedIn: boolean;
@@ -22,11 +23,13 @@ interface LoginResponse {
     token_type: string;
 }
 
+
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
 export const AuthProvider = ({ children }: AuthProviderProps) => {
     const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
     const [accessToken, setAccessToken] = useState<string | null>(null);
+    const router = useRouter();
 
     useEffect(() => {
         const token = localStorage.getItem('jwtToken');
@@ -88,6 +91,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         localStorage.removeItem('jwtToken');
         setIsLoggedIn(false);
         setAccessToken(null);
+        router.push("/login");
     };
 
     return (

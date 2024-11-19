@@ -10,6 +10,13 @@ class UserRegister(BaseModel):
 
 class User(BaseModel):
     email: EmailStr
+class RegisterUserRequest(BaseModel):
+    uid: str
+    email: str
+
+class AssignRoleRequest(BaseModel):
+    uid: str
+    code: str
 
     @classmethod
     def create_user(cls, email: str, password: str) -> "User":

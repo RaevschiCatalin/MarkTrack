@@ -4,10 +4,9 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { createUserWithEmailAndPassword, sendEmailVerification } from 'firebase/auth';
 import { auth } from '@/config/firebaseConfig';
-import { doc, setDoc } from 'firebase/firestore';
-import { db } from '@/config/firebaseConfig';
 import { useRouter } from 'next/navigation';
 import { FirebaseError } from 'firebase/app';
+import {postRequest} from "@/context/api";
 
 export default function Register() {
 	const [email, setEmail] = useState('');
@@ -32,15 +31,16 @@ export default function Register() {
 		try {
 			const userCredential = await createUserWithEmailAndPassword(auth, email, password);
 			const user = userCredential.user;
+			if (!user.uid) throw new Error("Unable to retrieve user UID.");
 
-			await setDoc(doc(db, "users", user.uid), {
-				email: user.email,
-				createdAt: new Date(),
-			});
+			localStorage.setItem("uid", user.uid);
+			await sendEmailVerification(user);
 
-			await sendEmailVerification(userCredential.user);
-			setMessage("Registration successful! Check your email to verify your account.");
-			setTimeout(() => router.push('/login'), 3000);
+			await postRequest('/register', { uid: user.uid, email: user.email });
+			setMessage("Registration successful! Check your email and verify your account.");
+			setTimeout(()=>{
+				router.push("/enterCode")
+			},2000);
 		} catch (error: unknown) {
 			if (error instanceof FirebaseError) {
 				setError(`Registration failed: ${error.message}`);
@@ -75,7 +75,7 @@ export default function Register() {
 						<label className="form-label">Password</label>
 						<div className="form-control">
 							<input
-								placeholder="********"
+								placeholder="Password"
 								type="password"
 								className="input input-block"
 								value={password}
@@ -87,7 +87,7 @@ export default function Register() {
 						<label className="form-label">Repeat Password</label>
 						<div className="form-control">
 							<input
-								placeholder="********"
+								placeholder="Password"
 								type="password"
 								className="input input-block"
 								value={confirmPassword}
