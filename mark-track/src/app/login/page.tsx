@@ -16,7 +16,7 @@ export default function Login() {
 		setError(null);
 		const result = await login(email, password);
 		if (result.success) {
-			router.push('/dashboard');
+			router.push('/');
 		} else {
 			setError(result.message || "Login failed. Please try again.");
 		}
