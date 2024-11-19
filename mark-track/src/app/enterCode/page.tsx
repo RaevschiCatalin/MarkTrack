@@ -65,7 +65,7 @@ export default function EnterCode() {
                     Submit
                 </button>
                 {error && <p className="text-red-500">{error}</p>}
-                {success && <p className="text-green-500">{success}</p>}
+                {success && <p className="text-green-500 mt-16">{success}</p>}
                 {loading && <Loader/> }
             </div>
         </div>

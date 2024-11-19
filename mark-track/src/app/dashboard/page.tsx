@@ -1,8 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import {useAuth} from "@/context/AuthContext";
+
 
 export default function Dashboard() {
+    const { userRole } = useAuth();//aici este variabila care determina rolul, poate fi sau student sau teacher
     const [selectedClass, setSelectedClass] = useState<string | null>(null);
     const [modalData, setModalData] = useState<{ firstName: string; lastName: string; index: number } | null>(null);
     const [formData, setFormData] = useState<{ grade: string; gradeDate: string; absences: string; absencesDate: string }>({
