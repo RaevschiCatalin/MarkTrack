@@ -10,6 +10,7 @@ import { useRouter } from 'next/navigation';
 interface AuthContextType {
     isLoggedIn: boolean;
     accessToken: string | null;
+    userRole: string | null;
     login: (email: string, password: string) => Promise<{ success: boolean; message?: string }>;
     logout: () => void;
 }
@@ -21,21 +22,27 @@ interface AuthProviderProps {
 interface LoginResponse {
     access_token: string;
     token_type: string;
+    role: string;
 }
-
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
+
 export const AuthProvider = ({ children }: AuthProviderProps) => {
     const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
     const [accessToken, setAccessToken] = useState<string | null>(null);
+    const [userRole, setUserRole] = useState<string | null>(null);
     const router = useRouter();
 
     useEffect(() => {
         const token = localStorage.getItem('jwtToken');
+        const role = localStorage.getItem('userRole');
         if (token) {
             setIsLoggedIn(true);
             setAccessToken(token);
+        }
+        if (role) {
+            setUserRole(role);
         }
     }, []);
 
@@ -54,9 +61,12 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
             if (response.status === 200) {
                 const token = response.data.access_token;
+                const role = response.data.role;
                 localStorage.setItem('jwtToken', token);
+                localStorage.setItem('userRole', role);
                 setIsLoggedIn(true);
                 setAccessToken(token);
+                setUserRole(role);
                 return { success: true };
             }
             return { success: false, message: "Login failed." };
@@ -89,13 +99,16 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
     const logout = () => {
         localStorage.removeItem('jwtToken');
+        localStorage.removeItem('userRole');
+        localStorage.removeItem('uid');
         setIsLoggedIn(false);
         setAccessToken(null);
+        setUserRole(null);
         router.push("/login");
     };
 
     return (
-        <AuthContext.Provider value={{ isLoggedIn, accessToken, login, logout }}>
+        <AuthContext.Provider value={{ isLoggedIn, accessToken, userRole, login, logout }}>
             {children}
         </AuthContext.Provider>
     );

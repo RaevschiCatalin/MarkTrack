@@ -11,7 +11,7 @@ from models.user import AssignRoleRequest,RegisterUserRequest
 from models.student import StudentDetails
 from models.teacher import TeacherDetails
 from models.login_data import LoginData
-from firebase_setup import db
+from firebase_setup import db,get_user_by_email
 
 # FastAPI app initialization
 app = FastAPI()
@@ -51,12 +51,27 @@ async def login(data: LoginData):
     try:
         if not isinstance(data.token, str):
             raise ValueError("The token must be a string.")
+
         decoded_token = auth.verify_id_token(data.token,clock_skew_seconds=60)
         email = decoded_token.get("email")
-        jwt_token = create_jwt_token(email)
-        return {"access_token": jwt_token, "token_type": "bearer"}
-    except Exception as e:
 
+        if not email:
+            raise HTTPException(status_code=400, detail="Email not found in token.")
+
+        user = get_user_by_email(email)
+
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found.")
+
+        role = user.get("role")
+
+        jwt_token = create_jwt_token(email)
+        return {
+            "access_token": jwt_token,
+            "token_type": "bearer",
+            "role": role
+        }
+    except Exception as e:
         raise HTTPException(status_code=401, detail="Invalid Firebase token.")
 
 
