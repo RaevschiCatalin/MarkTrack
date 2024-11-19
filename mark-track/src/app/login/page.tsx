@@ -61,7 +61,7 @@ export default function Login() {
 					<button onClick={onSubmit} className="btn btn-primary w-full">
 						Sign in
 					</button>
-					<Link href="/register" className='link link-underline-hover link-primary text-sm justify-center'>Don't have an account yet? Sign up.</Link>
+					<Link href="/register" className='link link-underline-hover link-primary text-sm justify-center'>Don&apos;t have an account yet? Sign up.</Link>
 				</div>
 			</div>
 		</div>

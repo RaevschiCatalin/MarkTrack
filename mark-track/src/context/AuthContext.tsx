@@ -23,6 +23,7 @@ interface LoginResponse {
     access_token: string;
     token_type: string;
     role: string;
+    uid: string;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -62,8 +63,10 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
             if (response.status === 200) {
                 const token = response.data.access_token;
                 const role = response.data.role;
+                const uid = response.data.uid;
                 localStorage.setItem('jwtToken', token);
                 localStorage.setItem('userRole', role);
+                localStorage.setItem('uid', uid);
                 setIsLoggedIn(true);
                 setAccessToken(token);
                 setUserRole(role);
