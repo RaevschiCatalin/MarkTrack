@@ -44,6 +44,7 @@ def create_jwt_token(email: str):
     expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     to_encode = {"sub": email, "exp": expire}
     token = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    print(token)
     return token
 
 
@@ -52,7 +53,6 @@ async def login(data: LoginData):
     try:
         if not isinstance(data.token, str):
             raise ValueError("The token must be a string.")
-
         decoded_token = auth.verify_id_token(data.token,clock_skew_seconds=60)
         email = decoded_token.get("email")
 

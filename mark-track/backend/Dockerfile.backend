@@ -14,5 +14,6 @@ COPY . .
 # Expose the port FastAPI will run on
 EXPOSE 8080
 
+
 # Start the FastAPI server with hot-reload enabled
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8080", "--reload"]
