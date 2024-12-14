@@ -22,7 +22,7 @@ export default function EnterCode() {
         }
 
         try {
-             await postRequest("/assign-role",{uid,code})
+             await postRequest("/roles/assign-role",{uid,code})
                 console.log("all good")
                 setError(null);
                 setSuccess("The code is correct, redirecting you to the next step.");

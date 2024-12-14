@@ -58,7 +58,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
             const firebaseToken = await user.getIdToken();
             console.log(firebaseToken);
-            const response = await axios.post<LoginResponse>(`${apiBaseUrl}/login`, { token: firebaseToken });
+            const response = await axios.post<LoginResponse>(`${apiBaseUrl}/auth/login`, { token: firebaseToken });
 
             if (response.status === 200) {
                 const token = response.data.access_token;

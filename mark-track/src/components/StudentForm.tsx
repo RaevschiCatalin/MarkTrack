@@ -28,7 +28,7 @@ export default function StudentForm() {
                 "uid": uid
             };
 
-            await postRequest('/complete-student-details', payload);
+            await postRequest('/profiles/complete-student-details', payload);
             setMessage('Student details submitted successfully!');
             setTimeout(()=>{
                 router.push("/login");

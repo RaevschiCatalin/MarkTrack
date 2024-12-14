@@ -8,11 +8,16 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Copy Google credentials file
+#COPY ./backend/credentials/marktrack-655e8-firebase-adminsdk-uev46-1af6e0dced.json /app/credentials/marktrack-655e8-firebase-adminsdk-uev46-1af6e0dced.json
+
 # Copy the rest of the backend code
 COPY . .
 
 # Expose the port FastAPI will run on
 EXPOSE 8080
+
+ENV PYTHONPATH=/app
 
 
 # Start the FastAPI server with hot-reload enabled

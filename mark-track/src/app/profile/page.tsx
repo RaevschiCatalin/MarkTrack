@@ -24,9 +24,9 @@ export default function Profile() {
                 const requestBody = { uid };
 
                 if (userRole === "student") {
-                    response = await postRequest('/get-student-profile', requestBody);
+                    response = await postRequest('/profiles/get-student-profile', requestBody);
                 } else if (userRole === "teacher") {
-                    response = await postRequest('/get-teacher-profile', requestBody);
+                    response = await postRequest('/profiles/get-teacher-profile', requestBody);
                 }
 
                 if (response) {

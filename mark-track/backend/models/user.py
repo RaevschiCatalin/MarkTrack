@@ -20,4 +20,3 @@ class RegisterUserRequest(BaseModel):
 class AssignRoleRequest(BaseModel):
     uid: str
     code: str
-

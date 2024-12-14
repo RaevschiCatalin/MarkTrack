@@ -24,7 +24,7 @@ export default function TeacherForm() {
     useEffect(() => {
         const fetchSubjects = async () => {
             try {
-                const data = await getRequest('/get-subjects');
+                const data = await getRequest('/subjects/get-subjects');
 
                 if (data && Array.isArray(data.subjects)) {
                     setSubjects(data.subjects);
@@ -58,7 +58,7 @@ export default function TeacherForm() {
                 uid: uid
             };
             console.log(payload)
-            await postRequest('/complete-teacher-details', payload);
+            await postRequest('/profiles/complete-teacher-details', payload);
             setMessage('Teacher details submitted successfully!');
             setTimeout(()=>{
                 router.push("/login");

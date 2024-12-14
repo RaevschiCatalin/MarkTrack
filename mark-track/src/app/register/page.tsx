@@ -36,7 +36,7 @@ export default function Register() {
 			localStorage.setItem("uid", user.uid);
 			await sendEmailVerification(user);
 
-			await postRequest('/register', { uid: user.uid, email: user.email });
+			await postRequest('/auth/register', { uid: user.uid, email: user.email });
 			setMessage("Registration successful! Check your email and verify your account.");
 			setTimeout(()=>{
 				router.push("/enterCode")

@@ -22,6 +22,9 @@ services:
       - "8080:8080"
     volumes:
       - ./backend:/app
-      - ./backend/.env:/app/.env
+      - ./backend/credentials/.env:/app/credentials/.env
+      - ./backend/credentials/marktrack-655e8-firebase-adminsdk-uev46-1af6e0dced.json:/app/credentials/marktrack-655e8-firebase-adminsdk-uev46-1af6e0dced.json
     environment:
-      - GOOGLE_APPLICATION_CREDENTIALS=/app/.env/marktrack-655e8-firebase-adminsdk-uev46-1af6e0dced.json
+      - GOOGLE_APPLICATION_CREDENTIALS=/app/credentials/marktrack-655e8-firebase-adminsdk-uev46-1af6e0dced.json
+    env_file:
+      - ./backend/credentials/.env
