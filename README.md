@@ -2,7 +2,7 @@
 
 ## The Online Gradebook That Puts You in Control!
 
-[![MarkTrack](https://avatars.githubusercontent.com/u/57570138?v=4)](https://mark-track.vercel.app)
+[![MarkTrack](https://i.imgur.com/mlbAbIc.png)](https://mark-track.vercel.app)
 
 Welcome to **MarkTrack**, the next-level online gradebook designed to help students and teachers keep track of grades effortlessly! Built with a slick UI and cutting-edge technology, MarkTrack ensures you never miss a grade again.
 
