@@ -7,9 +7,19 @@ import { motion } from "framer-motion";
 import { postRequest } from "@/context/api";
 import Loader from "@/components/Loader";
 
+interface ProfileData {
+    first_name: string;
+    last_name: string;
+    email: string;
+    subject_name?: string;
+    student_id?: string;
+    father_name?: string;
+    gov_number?: string;
+}
+
 export default function Profile() {
     const { userRole, logout } = useAuth();
-    const [profileData, setProfileData] = useState<any>(null);
+    const [profileData, setProfileData] = useState<ProfileData | null>(null);
     const [loading, setLoading] = useState(true);
     const router = useRouter();
     const uid = localStorage.getItem("uid");
@@ -42,7 +52,7 @@ export default function Profile() {
         };
 
         fetchProfileData();
-    }, [userRole]);
+    }, [userRole, uid]);
 
     const handleChangePassword = () => {
         router.push("/forgotPassword");
@@ -68,7 +78,7 @@ export default function Profile() {
                 transition={{ duration: 1 }}
                 className="bg-white p-6 rounded-lg shadow-lg w-full max-w-3xl"
             >
-                <h1 className="text-2xl font-semibold mb-4 text-center">Welcome to your profile page, {profileData.first_name}</h1>
+                <h1 className="text-2xl font-semibold mb-4 text-center">Welcome to your profile page, {profileData?.first_name}</h1>
 
                 {profileData ? (
                     <div className="space-y-4 text-center">

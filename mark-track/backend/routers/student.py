@@ -9,4 +9,5 @@ router = APIRouter()
 @router.get("/subjects")
 async def get_all_subjects(request: StudentRequest):
     student_id = request.student_id
+    pass
     

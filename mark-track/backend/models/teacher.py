@@ -8,3 +8,6 @@ class TeacherDetails(BaseModel):
     father_name: str
     gov_number: str
     subject_id: str
+
+class TeacherRequest(BaseModel):
+    teacher_id: str

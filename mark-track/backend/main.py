@@ -3,7 +3,7 @@ from starlette.middleware.cors import CORSMiddleware
 from firebase_admin import initialize_app
 
 
-from routers import auth, roles, profiles, subjects, admin
+from routers import auth, roles, profiles, subjects, admin, teacher, student
 
 try:
     initialize_app()

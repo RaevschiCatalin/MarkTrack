@@ -39,6 +39,7 @@ export default function CompleteDetails() {
                     setRole(userData.role);
                 }
             } catch (err:unknown) {
+                console.error(err);
                 setError('Error fetching role. Please try again.');
             } finally {
                 setLoading(false);

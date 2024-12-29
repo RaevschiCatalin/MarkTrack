@@ -7,7 +7,7 @@ import { useAuth } from "@/context/AuthContext";
 import { LucideHome, LucideStar, LucideLogIn } from "lucide-react";
 
 export default function Home() {
-    const [fadeIn, setFadeIn] = useState(false);
+    const [_, setFadeIn] = useState(false);
     const { isLoggedIn } = useAuth();
 
     useEffect(() => {
@@ -15,6 +15,7 @@ export default function Home() {
     }, []);
 
     return (
+
         <div className="min-h-screen flex flex-col items-center font-sans pt-8 bg-gradient-to-b from-[#ffffff] via-[#f8f8f8] to-[#f2f2f2] text-gray-800">
             <motion.main
                 initial={{ opacity: 0, y: 50 }}

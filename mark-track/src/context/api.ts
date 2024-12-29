@@ -7,7 +7,7 @@ const api = axios.create({
     headers: { 'Content-Type': 'application/json' },
 });
 
-export const postRequest = async (url: string, data: any) => {
+export const postRequest = async <T>(url: string, data: T) => {
     try {
         const response = await api.post(url, data);
         return response.data;
@@ -24,4 +24,3 @@ export const getRequest = async (url: string) => {
         throw error;
     }
 };
-
