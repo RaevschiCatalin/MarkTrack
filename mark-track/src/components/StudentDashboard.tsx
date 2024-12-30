@@ -51,30 +51,34 @@ export default function StudentDashboard() {
 
     const selectedData = selectedSubject ? data[selectedSubject] : null;
 
-    const gradesChart = selectedData && {
-        labels: selectedData.grades.map((item) => item.date),
-        datasets: [
-            {
-                label: "Grades",
-                data: selectedData.grades.map((item) => item.grade),
-                backgroundColor: ["#FF6384", "#36A2EB", "#FFCE56"],
-            },
-        ],
-    };
+    const gradesChart = selectedData
+        ? {
+            labels: selectedData.grades.map((item) => item.date),
+            datasets: [
+                {
+                    label: "Grades",
+                    data: selectedData.grades.map((item) => item.grade),
+                    backgroundColor: ["#FF6384", "#36A2EB", "#FFCE56"],
+                },
+            ],
+        }
+        : undefined;
 
-    const absencesChart = selectedData && {
-        labels: ["Motivated", "Not Motivated"],
-        datasets: [
-            {
-                label: "Absences",
-                data: [
-                    selectedData.absences.filter((a) => a.status === "Motivated").length,
-                    selectedData.absences.filter((a) => a.status === "Not Motivated").length,
-                ],
-                backgroundColor: ["#4CAF50", "#F44336"],
-            },
-        ],
-    };
+    const absencesChart = selectedData
+        ? {
+            labels: ["Motivated", "Not Motivated"],
+            datasets: [
+                {
+                    label: "Absences",
+                    data: [
+                        selectedData.absences.filter((a) => a.status === "Motivated").length,
+                        selectedData.absences.filter((a) => a.status === "Not Motivated").length,
+                    ],
+                    backgroundColor: ["#4CAF50", "#F44336"],
+                },
+            ],
+        }
+        : undefined;
 
     return (
         <div className="flex flex-row pt-20 h-screen overflow-y-auto">
@@ -114,15 +118,17 @@ export default function StudentDashboard() {
                         <div className="flex flex-col items-center">
                             <h3 className="text-center font-bold text-lg mb-2">Grades</h3>
                             <div className="flex flex-col items-center">
-                                <motion.div
-                                    className="p-4 shadow-lg rounded-md bg-white"
-                                    initial={{ opacity: 0, scale: 0.8 }}
-                                    animate={{ opacity: 1, scale: 1 }}
-                                    transition={{ duration: 0.5 }}
-                                    style={{ width: "100%", maxWidth: "400px" }}
-                                >
-                                    <Pie data={gradesChart} />
-                                </motion.div>
+                                {gradesChart && (
+                                    <motion.div
+                                        className="p-4 shadow-lg rounded-md bg-white"
+                                        initial={{ opacity: 0, scale: 0.8 }}
+                                        animate={{ opacity: 1, scale: 1 }}
+                                        transition={{ duration: 0.5 }}
+                                        style={{ width: "100%", maxWidth: "400px" }}
+                                    >
+                                        <Pie data={gradesChart} />
+                                    </motion.div>
+                                )}
                                 <table className="table-auto w-full border-collapse border border-gray-300 mt-4">
                                     <thead>
                                     <tr>
@@ -148,15 +154,17 @@ export default function StudentDashboard() {
                         <div className="flex flex-col items-center">
                             <h3 className="text-center font-bold text-lg mb-2">Absences</h3>
                             <div className="flex flex-col items-center">
-                                <motion.div
-                                    className="p-4 shadow-lg rounded-md bg-white"
-                                    initial={{ opacity: 0, scale: 0.8 }}
-                                    animate={{ opacity: 1, scale: 1 }}
-                                    transition={{ duration: 0.5 }}
-                                    style={{ width: "100%", maxWidth: "400px" }}
-                                >
-                                    <Doughnut data={absencesChart} />
-                                </motion.div>
+                                {absencesChart && (
+                                    <motion.div
+                                        className="p-4 shadow-lg rounded-md bg-white"
+                                        initial={{ opacity: 0, scale: 0.8 }}
+                                        animate={{ opacity: 1, scale: 1 }}
+                                        transition={{ duration: 0.5 }}
+                                        style={{ width: "100%", maxWidth: "400px" }}
+                                    >
+                                        <Doughnut data={absencesChart} />
+                                    </motion.div>
+                                )}
                                 <table className="table-auto w-full border-collapse border border-gray-300 mt-4">
                                     <thead>
                                     <tr>
