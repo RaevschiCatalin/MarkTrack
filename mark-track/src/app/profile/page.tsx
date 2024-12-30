@@ -22,7 +22,13 @@ export default function Profile() {
     const [profileData, setProfileData] = useState<ProfileData | null>(null);
     const [loading, setLoading] = useState(true);
     const router = useRouter();
-    const uid = localStorage.getItem("uid");
+    const [uid, setUid] = useState<string | null>(null);
+
+    useEffect(() => {
+        if (typeof window !== "undefined") {
+            setUid(localStorage.getItem("uid"));
+        }
+    }, []);
 
     useEffect(() => {
         if (!userRole || !uid) return;
