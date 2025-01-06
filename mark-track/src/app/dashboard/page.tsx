@@ -1,7 +1,7 @@
 "use client";
 import {useAuth} from "@/context/AuthContext";
-import StudentDashboard from "@/components/StudentDashboard";
-import TeacherDashboard from "@/components/TeacherDashboard";
+import StudentDashboard from "@/components/student/StudentDashboard";
+import TeacherDashboard from "@/components/teacher/TeacherDashboard";
 import AdminDashboard from "@/components/admin/AdminDashboard";
 
 export default function Dashboard() {

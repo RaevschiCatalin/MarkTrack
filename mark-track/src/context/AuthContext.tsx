@@ -11,6 +11,7 @@ interface AuthContextType {
     isLoggedIn: boolean;
     accessToken: string | null;
     userRole: string | null;
+    uid: string | null;
     login: (email: string, password: string) => Promise<{ success: boolean; message?: string }>;
     logout: () => void;
 }
@@ -33,6 +34,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
     const [accessToken, setAccessToken] = useState<string | null>(null);
     const [userRole, setUserRole] = useState<string | null>(null);
+    const [uid, setUid] = useState<string | null>(null);
     const router = useRouter();
 
     useEffect(() => {
@@ -44,6 +46,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         }
         if (role) {
             setUserRole(role);
+        }
+        if (uid) {
+            setUid(uid);
         }
     }, []);
 
@@ -70,6 +75,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
                 setIsLoggedIn(true);
                 setAccessToken(token);
                 setUserRole(role);
+                setUid(uid);
                 return { success: true };
             }
             return { success: false, message: "Login failed." };
@@ -111,7 +117,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     };
 
     return (
-        <AuthContext.Provider value={{ isLoggedIn, accessToken, userRole, login, logout }}>
+        <AuthContext.Provider value={{ isLoggedIn, accessToken, userRole,uid, login, logout }}>
             {children}
         </AuthContext.Provider>
     );
