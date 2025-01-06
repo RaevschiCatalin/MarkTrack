@@ -2,9 +2,10 @@ from datetime import datetime
 from fastapi import APIRouter, HTTPException
 from database.firebase_setup import db
 from models.class_model import CreateClassRequest
-from models.student import AddStudentToClass
-from models.subject import Subject
+from models.student import AddStudentToClass, AddStudentsToClass
+from models.subject import Subject, SubjectName
 from models.class_model import AssignTeacherToClass
+from firebase_admin import firestore
 
 router = APIRouter()
 
@@ -40,6 +41,7 @@ async def create_class(class_request: CreateClassRequest):
             raise HTTPException(status_code=400, detail="Class already exists.")
 
         class_ref.set({
+            "name": class_request.class_id,
             "created_at": datetime.utcnow(),
             "students": [],
             "subjects": []
@@ -59,8 +61,8 @@ async def add_student_to_class(class_id: str, student_details: AddStudentToClass
         if not class_doc.exists:
             raise HTTPException(status_code=404, detail="Class not found.")
 
-        student_ref = db.collection("Students").where("student_id", "==", student_id).stream()
-        student_doc = next(student_ref, None)
+        student_docs = db.collection("Students").where("student_id", "==", student_id).limit(1).stream()
+        student_doc = next(student_docs, None)
 
         if not student_doc:
             raise HTTPException(status_code=404, detail="Student not found.")
@@ -69,14 +71,23 @@ async def add_student_to_class(class_id: str, student_details: AddStudentToClass
         if student_id in class_data.get("students", []):
             raise HTTPException(status_code=400, detail="Student already in class.")
 
-        class_ref.update({"students": class_data.get("students", []) + [student_id]})
-        student_ref.update({"class_id": class_id})
-        return {"message": "Student added to class."}
+      
+        class_ref.update({
+            "students": firestore.ArrayUnion([student_id])
+        })
+
+
+        db.collection("Students").document(student_doc.id).update({
+            "class_id": class_id
+        })
+
+        return {"message": "Student added to class successfully"}
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error adding student to class: {e}")
+        print(f"Error details: {str(e)}")  
+        raise HTTPException(status_code=500, detail=f"Error adding student to class: {str(e)}")
 
 
-# Add subject to a class
+# Assign subject to a class
 @router.post("/classes/{class_id}/subjects")
 async def add_subject_to_class(class_id: str, subject_details: Subject):
     subject_id = subject_details.subject_id
@@ -152,3 +163,121 @@ async def assign_teacher_to_class(class_id: str, teacher_details: AssignTeacherT
         return {"message": "Teacher assigned to class."}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error assigning teacher to class: {str(e)}")
+
+# Create a new subject
+@router.post("/subjects")
+async def create_subject(subject_details: SubjectName):
+    try:
+        
+        subjects_ref = db.collection("Subjects")
+        existing_subjects = subjects_ref.where("name", "==", subject_details.subject_name).limit(1).stream()
+        if next(existing_subjects, None):
+            raise HTTPException(status_code=400, detail="Subject with this name already exists")
+
+        subject_ref = db.collection("Subjects").document()
+        subject_ref.set({
+            "name": subject_details.subject_name,
+            "created_at": datetime.utcnow()
+        })
+        
+        return {
+            "id": subject_ref.id,
+            "name": subject_details.subject_name,
+            "message": "Subject created successfully"
+        }
+    except HTTPException as he:
+        raise he
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error creating subject: {str(e)}")
+
+# Fetch all subjects
+@router.get("/subjects")
+async def get_all_subjects():
+    try:
+        subjects_ref = db.collection("Subjects")
+        subjects_docs = subjects_ref.stream()
+        subjects = [{"id": doc.id, **doc.to_dict()} for doc in subjects_docs]
+        return {"subjects": subjects}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error fetching subjects: {e}")
+    
+@router.get("/students")
+async def get_all_students():
+    try:
+        students_ref = db.collection("Students")
+        students_docs = students_ref.stream()
+        students = [{"id": doc.id, **doc.to_dict()} for doc in students_docs]
+        return {"students": students}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error fetching students: {e}")
+
+# Add new endpoint for bulk student assignment
+@router.post("/classes/{class_id}/students/bulk")
+async def add_students_to_class(class_id: str, student_details: AddStudentsToClass):
+    student_ids = student_details.student_ids
+    try:
+        # Get class reference and document
+        class_ref = db.collection("Classes").document(class_id)
+        class_doc = class_ref.get()
+
+        if not class_doc.exists:
+            raise HTTPException(status_code=404, detail="Class not found.")
+
+        # Get class data
+        class_data = class_doc.to_dict()
+        existing_students = set(class_data.get("students", []))
+
+        # Get all student documents and check their current class assignments
+        student_docs = {}
+        students_with_classes = []
+        
+        for student_id in student_ids:
+            docs = db.collection("Students").where("student_id", "==", student_id).limit(1).stream()
+            doc = next(docs, None)
+            if not doc:
+                raise HTTPException(status_code=404, detail=f"Student {student_id} not found.")
+            
+            student_data = doc.to_dict()
+            if student_data.get("class_id") and student_data["class_id"] != class_id:
+                student_name = f"{student_data.get('first_name', '')} {student_data.get('last_name', '')}".strip()
+                students_with_classes.append(f"{student_name} ({student_id})")
+            else:
+                student_docs[student_id] = doc
+
+        # If any students are already assigned to other classes, raise an error
+        if students_with_classes:
+            raise HTTPException(
+                status_code=400, 
+                detail={
+                    "message": "Some students are already assigned to other classes",
+                    "students": students_with_classes
+                }
+            )
+
+        # Filter out students already in this class
+        new_student_ids = [sid for sid in student_ids if sid not in existing_students]
+        
+        if not new_student_ids:
+            raise HTTPException(status_code=400, detail="All selected students are already in this class.")
+
+        # Update class with new students
+        class_ref.update({
+            "students": firestore.ArrayUnion(new_student_ids)
+        })
+
+        # Update each student's class reference
+        batch = db.batch()
+        for student_id in new_student_ids:
+            student_ref = db.collection("Students").document(student_docs[student_id].id)
+            batch.update(student_ref, {"class_id": class_id})
+        batch.commit()
+
+        return {
+            "message": f"Successfully added {len(new_student_ids)} students to class",
+            "added_students": new_student_ids
+        }
+    except HTTPException as he:
+        raise he
+    except Exception as e:
+        print(f"Error details: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error adding students to class: {str(e)}")

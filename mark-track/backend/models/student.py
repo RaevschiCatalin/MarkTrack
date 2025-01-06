@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+from typing import List
 
 
 class StudentDetails(BaseModel):
@@ -14,3 +15,6 @@ class AddStudentToClass(BaseModel):
 
 class StudentRequest(BaseModel):
     student_id: str
+
+class AddStudentsToClass(BaseModel):
+    student_ids: List[str]
