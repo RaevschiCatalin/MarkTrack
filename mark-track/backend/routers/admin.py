@@ -216,18 +216,18 @@ async def get_all_students():
 async def add_students_to_class(class_id: str, student_details: AddStudentsToClass):
     student_ids = student_details.student_ids
     try:
-        # Get class reference and document
+        
         class_ref = db.collection("Classes").document(class_id)
         class_doc = class_ref.get()
 
         if not class_doc.exists:
             raise HTTPException(status_code=404, detail="Class not found.")
 
-        # Get class data
+        
         class_data = class_doc.to_dict()
         existing_students = set(class_data.get("students", []))
 
-        # Get all student documents and check their current class assignments
+       
         student_docs = {}
         students_with_classes = []
         
@@ -244,7 +244,7 @@ async def add_students_to_class(class_id: str, student_details: AddStudentsToCla
             else:
                 student_docs[student_id] = doc
 
-        # If any students are already assigned to other classes, raise an error
+        
         if students_with_classes:
             raise HTTPException(
                 status_code=400, 
@@ -254,18 +254,15 @@ async def add_students_to_class(class_id: str, student_details: AddStudentsToCla
                 }
             )
 
-        # Filter out students already in this class
         new_student_ids = [sid for sid in student_ids if sid not in existing_students]
         
         if not new_student_ids:
             raise HTTPException(status_code=400, detail="All selected students are already in this class.")
 
-        # Update class with new students
         class_ref.update({
             "students": firestore.ArrayUnion(new_student_ids)
         })
 
-        # Update each student's class reference
         batch = db.batch()
         for student_id in new_student_ids:
             student_ref = db.collection("Students").document(student_docs[student_id].id)
@@ -281,3 +278,125 @@ async def add_students_to_class(class_id: str, student_details: AddStudentsToCla
     except Exception as e:
         print(f"Error details: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Error adding students to class: {str(e)}")
+
+@router.delete("/subjects/{subject_id}")
+async def delete_subject(subject_id: str):
+    try:
+      
+        subject_ref = db.collection("Subjects").document(subject_id)
+        subject = subject_ref.get()
+        
+        if not subject.exists:
+            raise HTTPException(status_code=404, detail="Subject not found")
+
+        batch = db.batch()
+
+        classes = db.collection("Classes").stream()
+        for cls in classes:
+            cls_data = cls.to_dict()
+            if "subjects" in cls_data:
+                
+                updated_subjects = [
+                    subj for subj in cls_data["subjects"] 
+                    if subj.get("subject_id") != subject_id
+                ]
+                if len(updated_subjects) != len(cls_data["subjects"]):
+                    batch.update(cls.reference, {"subjects": updated_subjects})
+
+        teachers = db.collection("Teachers").where("subject_id", "==", subject_id).stream()
+        for teacher in teachers:
+            batch.update(teacher.reference, {"subject_id": None})
+
+      
+        batch.delete(subject_ref)
+ 
+        batch.commit()
+
+        return {"message": "Subject deleted successfully"}
+    except Exception as e:
+        print(f"Error details: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error deleting subject: {str(e)}")
+
+@router.delete("/classes/{class_id}")
+async def delete_class(class_id: str):
+    try:
+        
+        class_ref = db.collection("Classes").document(class_id)
+        class_doc = class_ref.get()
+        
+        if not class_doc.exists:
+            raise HTTPException(status_code=404, detail="Class not found")
+
+        class_data = class_doc.to_dict()
+        batch = db.batch()
+
+ 
+        if "students" in class_data:
+            students = db.collection("Students").where("class_id", "==", class_id).stream()
+            for student in students:
+                batch.update(student.reference, {"class_id": firestore.DELETE_FIELD})
+
+        
+        batch.delete(class_ref)
+       
+        batch.commit()
+
+        return {"message": "Class deleted successfully"}
+    except Exception as e:
+        print(f"Error details: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error deleting class: {str(e)}")
+
+@router.delete("/classes/{class_id}/students/{student_id}")
+async def remove_student_from_class(class_id: str, student_id: str):
+    try:
+      
+        class_ref = db.collection("Classes").document(class_id)
+        class_doc = class_ref.get()
+
+        if not class_doc.exists:
+            raise HTTPException(status_code=404, detail="Class not found")
+
+       
+        class_ref.update({
+            "students": firestore.ArrayRemove([student_id])
+        })
+
+        
+        student_docs = db.collection("Students").where("student_id", "==", student_id).limit(1).stream()
+        student_doc = next(student_docs, None)
+        if student_doc:
+            student_doc.reference.update({
+                "class_id": firestore.DELETE_FIELD
+            })
+
+        return {"message": "Student removed from class successfully"}
+    except Exception as e:
+        print(f"Error details: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error removing student from class: {str(e)}")
+
+@router.delete("/classes/{class_id}/subjects/{subject_id}")
+async def remove_subject_from_class(class_id: str, subject_id: str):
+    try:
+        
+        class_ref = db.collection("Classes").document(class_id)
+        class_doc = class_ref.get()
+
+        if not class_doc.exists:
+            raise HTTPException(status_code=404, detail="Class not found")
+
+       
+        class_data = class_doc.to_dict()
+        updated_subjects = [
+            subj for subj in class_data.get("subjects", [])
+            if subj.get("subject_id") != subject_id
+        ]
+
+        # Update class document
+        class_ref.update({
+            "subjects": updated_subjects
+        })
+
+        return {"message": "Subject removed from class successfully"}
+    except Exception as e:
+        print(f"Error details: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error removing subject from class: {str(e)}")

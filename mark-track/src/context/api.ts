@@ -24,3 +24,12 @@ export const getRequest = async (url: string) => {
         throw error;
     }
 };
+
+export const deleteRequest = async (url: string) => {
+    try {
+        const response = await api.delete(url);
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+};

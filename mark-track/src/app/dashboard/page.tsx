@@ -2,7 +2,7 @@
 import {useAuth} from "@/context/AuthContext";
 import StudentDashboard from "@/components/StudentDashboard";
 import TeacherDashboard from "@/components/TeacherDashboard";
-import AdminDashboard from "@/components/AdminDashboard";
+import AdminDashboard from "@/components/admin/AdminDashboard";
 
 export default function Dashboard() {
     const { userRole } = useAuth();
