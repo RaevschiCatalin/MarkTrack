@@ -96,8 +96,9 @@ export default function Navbar() {
                             <>
                                 <Link href="/profile" className="dropdown-item text-sm">Profile</Link>
                                 <Link href="/dashboard" className="dropdown-item text-sm">Dashboard</Link>
-                                <Link href="/notifications" className="dropdown-item text-sm">Notifications</Link>
+                                <Link href="/notifications" className='dropdown-item text-sm'>Notifications</Link>
                                 <button onClick={logout} className="dropdown-item text-sm">Logout</button>
+                                
                             </>
                         ) : (
                             <>
