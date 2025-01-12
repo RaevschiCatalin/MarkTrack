@@ -15,10 +15,13 @@ export const teacherService = {
         return response.students as StudentResponse[];
     },
 
-    addMark: async (teacherId: string, data: { student_id: string; value: number; subject_id: string; date: string }) => {
-        const response = await postRequest('/teacher/marks', {
-            ...data,
-            teacher_id: teacherId
+    addMark: async (student_id: string, class_id: string, teacher_id: string, subject_id: string, value: number, description: string ) => {
+        const response = await postRequest(`/teacher/classes/${class_id}/students/marks`, {
+            student_id,
+            teacher_id,
+            subject_id,
+            value,
+            description
         });
         return response as Mark;
     },
@@ -37,10 +40,13 @@ export const teacherService = {
         });
     },
 
-    addAbsence: async (teacherId: string, data: { student_id: string; subject_id: string; date: string; is_motivated: boolean }) => {
-        const response = await postRequest('/teacher/absences', {
-            ...data,
-            teacher_id: teacherId
+    addAbsence: async (student_id: string,class_id: string, teacher_id: string, subject_id: string, is_motivated: boolean, description: string) => {
+        const response = await postRequest(`/teacher/classes/${class_id}/students/absences`, {
+            student_id,
+            teacher_id,
+            subject_id,
+            is_motivated,
+            description
         });
         return response as Absence;
     },

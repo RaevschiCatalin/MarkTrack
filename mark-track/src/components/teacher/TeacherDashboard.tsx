@@ -74,7 +74,6 @@ export default function TeacherDashboard() {
     const handleDataUpdate = () => {
         loadStudents();
     };
-
         if (!uid) {
         return <div>Please log in to access the dashboard.</div>;
     }

@@ -20,6 +20,10 @@ export interface MarkCreate extends MarkBase {}
 export interface Mark extends MarkBase {
     id: string;
     teacher_id: string;
+    description: string;
+    value: number;
+
+
 }
 
 export interface AbsenceBase {
@@ -34,6 +38,9 @@ export interface AbsenceCreate extends AbsenceBase {}
 export interface Absence extends AbsenceBase {
     id: string;
     teacher_id: string;
+    description: string;
+    is_motivated: boolean;
+
 }
 
 export interface StudentStats {

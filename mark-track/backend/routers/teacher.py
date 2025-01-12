@@ -1,8 +1,10 @@
 from fastapi import APIRouter, HTTPException, Query
-from typing import List, Optional
+from typing import  Optional
 from datetime import datetime
 
 from database.firebase_setup import db
+from models.mark import Mark
+from models.absence import Absence
 
 router = APIRouter()
 
@@ -112,7 +114,104 @@ async def get_class_students(
         print(f"Error details: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Error fetching students: {str(e)}")
 
-# Get a specific student stats
-@router.get("/classes/{class_id}/students/{student_id}")
-async def get_student_stats(class_id: str, student_id: str, teacher_id: str = Query(...)):
-    pass
+@router.post("/classes/{class_id}/students/marks")
+async def add_student_mark(class_id: str, mark_request: Mark):
+    try:
+        teacher = db.collection("Teachers").document(mark_request.teacher_id).get()
+        if not teacher.exists:
+            raise HTTPException(status_code=401, detail="Unauthorized")
+
+        class_doc = db.collection("Classes").document(class_id).get()
+        if not class_doc.exists:
+            raise HTTPException(status_code=404, detail="Class not found")
+
+        class_data = class_doc.to_dict()
+        subject = next(
+            (subj for subj in class_data.get("subjects", [])
+             if subj.get("teacher_id") == mark_request.teacher_id and subj.get("subject_id") == mark_request.subject_id),
+            None
+        )
+
+        if not subject:
+            raise HTTPException(status_code=403, detail="Teacher does not teach in this class")
+
+        student_doc = db.collection("Students").document(mark_request.student_id).get()
+        if not student_doc.exists:
+            raise HTTPException(status_code=404, detail="Student not found")
+
+        mark = {
+            "student_id": mark_request.student_id,
+            "subject_id": mark_request.subject_id,
+            "value": mark_request.value,
+            "date": datetime.now().isoformat(),
+            "description": mark_request.description
+        }
+
+        db.collection("Marks").add(mark)
+        return {"message": "Mark added successfully"}
+    except Exception as e:
+        print(f"Error details: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error adding mark: {str(e)}")
+
+@router.post("/classes/{class_id}/students/absences")
+async def add_student_absence(class_id: str, absence_request: Absence):
+    try:
+        teacher = db.collection("Teachers").document(absence_request.teacher_id).get()
+        if not teacher.exists:
+            raise HTTPException(status_code=401, detail="Unauthorized")
+
+        class_doc = db.collection("Classes").document(class_id).get()
+        if not class_doc.exists:
+            raise HTTPException(status_code=404, detail="Class not found")
+
+        class_data = class_doc.to_dict()
+        subject = next(
+            (subj for subj in class_data.get("subjects", [])
+             if subj.get("teacher_id") == absence_request.teacher_id and subj.get("subject_id") == absence_request.subject_id),
+            None
+        )
+
+        if not subject:
+            raise HTTPException(status_code=403, detail="Teacher does not teach in this class")
+
+        student_doc = db.collection("Students").document(absence_request.student_id).get()
+        if not student_doc.exists:
+            raise HTTPException(status_code=404, detail="Student not found")
+
+        absence = {
+            "student_id": absence_request.student_id,
+            "subject_id": absence_request.subject_id,
+            "is_motivated": absence_request.is_motivated,
+            "date": datetime.now().isoformat(),
+            "description": absence_request.description
+        }
+
+        db.collection("Absences").add(absence)
+        return {"message": "Absence added successfully"}
+    except Exception as e:
+        print(f"Error details: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error adding absence: {str(e)}")
+
+# Get all marks of a student
+@router.get("/students/{student_id}/marks")
+async def get_student_marks(student_id: str):
+    try:
+        marks = db.collection("Marks").where("student_id", "==", student_id).stream()
+        marks_list = [m.to_dict() | {"id": m.id} for m in marks]
+
+        return {"marks": marks_list}
+    except Exception as e:
+        print(f"Error details: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error fetching marks: {str(e)}")
+
+# Get all absences of a student
+@router.get("/students/{student_id}/absences")
+async def get_student_absences(student_id: str):
+    try:
+        absences = db.collection("Absences").where("student_id", "==", student_id).stream()
+        absences_list = [a.to_dict() | {"id": a.id} for a in absences]
+
+        return {"absences": absences_list}
+    except Exception as e:
+        print(f"Error details: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error fetching absences: {str(e)}")
