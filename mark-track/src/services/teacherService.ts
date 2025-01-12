@@ -1,16 +1,16 @@
-import { getRequest, postRequest, deleteRequest } from '../context/api';
+import {getRequest, postRequest, deleteRequest, getRequestWithParams} from '../context/api';
 import { Mark, Absence, StudentResponse, TeacherClass } from '../types/teacher';
 
 export const teacherService = {
     getClasses: async (teacherId: string) => {
-        const response = await getRequest('/teacher/classes');
+        const response = await getRequestWithParams('/teacher/classes', { teacher_id: teacherId });
         return response.classes as TeacherClass[];
     },
 
     getClassStudents: async (classId: string, teacherId: string, includeStats: boolean = true) => {
-        const response = await postRequest(`/teacher/classes/${classId}/students`, {
+        const response = await getRequestWithParams(`/teacher/classes/${classId}/students`, {
             teacher_id: teacherId,
-            include_stats: includeStats
+            includeStats: includeStats
         });
         return response.students as StudentResponse[];
     },
