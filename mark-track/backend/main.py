@@ -3,7 +3,7 @@ from starlette.middleware.cors import CORSMiddleware
 from firebase_admin import initialize_app
 
 
-from routers import auth, roles, profiles, subjects, admin, teacher, student
+from routers import auth, roles, profiles, subjects, admin, teacher, student, notifications
 
 try:
     initialize_app()
@@ -28,6 +28,7 @@ app.include_router(subjects.router, prefix="/subjects", tags=["Subjects"])
 app.include_router(admin.router, prefix="/admin", tags=["Admin"])
 app.include_router(teacher.router, prefix="/teacher", tags=["Teacher"])
 app.include_router(student.router, prefix="/student", tags=["Student"])
+app.include_router(notifications.router, prefix="/notifications", tags=["Notifications"])
 
 @app.get("/")
 async def root():
