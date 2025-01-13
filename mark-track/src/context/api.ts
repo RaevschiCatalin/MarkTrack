@@ -25,6 +25,15 @@ export const getRequest = async (url: string) => {
     }
 };
 
+export const getRequestWithParams = async (url: string, params: any) => {
+    try {
+        const response = await api.get(url, { params });
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+}
+
 export const deleteRequest = async (url: string) => {
     try {
         const response = await api.delete(url);

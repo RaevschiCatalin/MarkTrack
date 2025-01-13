@@ -12,14 +12,14 @@ interface Props {
 
 export default function GradeModal({ student, classData, teacherId, onClose, onSuccess }: Props) {
     const [grade, setGrade] = useState("");
-    const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
+    const [description, setDescription] = useState("");
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        
-        if (!grade || !date) {
+
+        if (!grade || !description) {
             setError("Please fill in all fields");
             return;
         }
@@ -32,12 +32,7 @@ export default function GradeModal({ student, classData, teacherId, onClose, onS
 
         try {
             setLoading(true);
-            await teacherService.addMark(teacherId, {
-                student_id: student.student_id,
-                value: gradeValue,
-                subject_id: classData.subject_id,
-                date: date
-            });
+            await teacherService.addMark(student.id, classData.id, teacherId, classData.subject_id, gradeValue, description);
             onSuccess();
             onClose();
         } catch (err) {
@@ -80,12 +75,11 @@ export default function GradeModal({ student, classData, teacherId, onClose, onS
 
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Date
+                            Description
                         </label>
-                        <input
-                            type="date"
-                            value={date}
-                            onChange={(e) => setDate(e.target.value)}
+                        <textarea
+                            value={description}
+                            onChange={(e) => setDescription(e.target.value)}
                             className="w-full p-2 border rounded focus:ring-blue-500 focus:border-blue-500"
                             required
                         />

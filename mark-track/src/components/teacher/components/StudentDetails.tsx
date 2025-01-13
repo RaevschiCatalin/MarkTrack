@@ -1,7 +1,8 @@
 import { StudentResponse, TeacherClass, Mark, Absence } from "@/types/teacher";
 import { FaGraduationCap, FaCalendarAlt, FaEdit, FaTrash } from "react-icons/fa";
 import { teacherService } from "@/services/teacherService";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { getRequest } from "@/context/api";
 
 interface Props {
     student: StudentResponse;
@@ -11,19 +12,33 @@ interface Props {
     onOpenAbsenceModal: () => void;
 }
 
-export default function StudentDetails({ 
-    student, 
-    classData, 
-    onUpdate,
-    onOpenGradeModal,
-    onOpenAbsenceModal 
-}: Props) {
+export default function StudentDetails({
+                                           student,
+                                           classData,
+                                           onUpdate,
+                                           onOpenGradeModal,
+                                           onOpenAbsenceModal
+                                       }: Props) {
     const [loading, setLoading] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
+    const [grades, setGrades] = useState<Mark[]>([]);
+    const [absences, setAbsences] = useState<Absence[]>([]);
+
+    const fetchStudentMarksAndAbsences = async () => {
+        try {
+            const gradesResponse = await getRequest(`/teacher/students/${student.id}/marks`);
+            const absencesResponse = await getRequest(`/teacher/students/${student.id}/absences`);
+            setGrades(gradesResponse.marks);
+            setAbsences(absencesResponse.absences);
+        } catch (err) {
+            setError('Failed to fetch student marks and absences');
+            console.error(err);
+        }
+    };
 
     const handleDeleteMark = async (markId: string) => {
         if (!confirm('Are you sure you want to delete this grade?')) return;
-        
+
         try {
             setLoading(`mark-${markId}`);
             await teacherService.deleteMark(classData.subject_id, markId);
@@ -38,7 +53,7 @@ export default function StudentDetails({
 
     const handleDeleteAbsence = async (absenceId: string) => {
         if (!confirm('Are you sure you want to delete this absence?')) return;
-        
+
         try {
             setLoading(`absence-${absenceId}`);
             await teacherService.deleteAbsence(classData.subject_id, absenceId);
@@ -55,8 +70,8 @@ export default function StudentDetails({
         try {
             setLoading(`absence-${absence.id}`);
             await teacherService.updateAbsence(
-                classData.subject_id, 
-                absence.id, 
+                classData.subject_id,
+                absence.id,
                 { is_motivated: !absence.is_motivated }
             );
             onUpdate();
@@ -67,6 +82,10 @@ export default function StudentDetails({
             setLoading(null);
         }
     };
+
+    useEffect(() => {
+        fetchStudentMarksAndAbsences();
+    }, []);
 
     return (
         <div className="bg-white rounded-lg shadow p-6">
@@ -98,15 +117,15 @@ export default function StudentDetails({
                         </button>
                     </div>
                     <div className="space-y-2">
-                        {student.marks?.map((mark) => (
-                            <div 
+                        {grades.map((mark) => (
+                            <div
                                 key={mark.id}
                                 className="flex justify-between items-center p-3 bg-gray-50 rounded"
                             >
                                 <div>
-                                    <span className="font-semibold">{mark.value}</span>
+                                    <span className="font-semibold">Grade: {mark.value}</span>
                                     <span className="text-sm text-gray-500 ml-2">
-                                        {new Date(mark.date).toLocaleDateString()}
+                                       Commentary:  {mark.description}
                                     </span>
                                 </div>
                                 <button
@@ -135,8 +154,8 @@ export default function StudentDetails({
                         </button>
                     </div>
                     <div className="space-y-2">
-                        {student.absences?.map((absence) => (
-                            <div 
+                        {absences.map((absence) => (
+                            <div
                                 key={absence.id}
                                 className="flex justify-between items-center p-3 bg-gray-50 rounded"
                             >
@@ -147,7 +166,14 @@ export default function StudentDetails({
                                         {absence.is_motivated ? 'Motivated' : 'Unmotivated'}
                                     </span>
                                     <span className="text-sm text-gray-500 ml-2">
-                                        {new Date(absence.date).toLocaleDateString()}
+                                       Commentary: {absence.description}
+                                    </span>
+                                    <span className="text-sm text-gray-500 ml-2 font-bold">
+                                        {new Date(absence.date).toLocaleDateString('en-GB', {
+                                            day: '2-digit',
+                                            month: '2-digit',
+                                            year: 'numeric'
+                                        })}
                                     </span>
                                 </div>
                                 <div className="flex space-x-2">
@@ -173,4 +199,4 @@ export default function StudentDetails({
             </div>
         </div>
     );
-} 
+}

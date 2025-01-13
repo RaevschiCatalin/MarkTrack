@@ -40,6 +40,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     useEffect(() => {
         const token = localStorage.getItem('jwtToken');
         const role = localStorage.getItem('userRole');
+        const uid = localStorage.getItem('uid');
         if (token) {
             setIsLoggedIn(true);
             setAccessToken(token);
@@ -62,7 +63,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
             }
 
             const firebaseToken = await user.getIdToken();
-            console.log(firebaseToken);
+            // console.log(firebaseToken);
             const response = await axios.post<LoginResponse>(`${apiBaseUrl}/auth/login`, { token: firebaseToken });
 
             if (response.status === 200) {
@@ -117,7 +118,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     };
 
     return (
-        <AuthContext.Provider value={{ isLoggedIn, accessToken, userRole,uid, login, logout }}>
+        <AuthContext.Provider value={{ isLoggedIn, accessToken, userRole, uid, login, logout }}>
             {children}
         </AuthContext.Provider>
     );

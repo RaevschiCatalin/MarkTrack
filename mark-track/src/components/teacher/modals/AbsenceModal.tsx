@@ -11,27 +11,21 @@ interface Props {
 }
 
 export default function AbsenceModal({ student, classData, teacherId, onClose, onSuccess }: Props) {
-    const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
     const [isMotivated, setIsMotivated] = useState(false);
+    const [description, setDescription] = useState("");
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        
-        if (!date) {
-            setError("Please select a date");
+
+        if (!description) {
+            setError("Please provide a description");
             return;
         }
-
         try {
             setLoading(true);
-            await teacherService.addAbsence(teacherId, {
-                student_id: student.student_id,
-                subject_id: classData.subject_id,
-                date: date,
-                is_motivated: isMotivated
-            });
+            await teacherService.addAbsence(student.id, classData.id, teacherId, classData.subject_id, isMotivated, description);
             onSuccess();
             onClose();
         } catch (err) {
@@ -58,12 +52,11 @@ export default function AbsenceModal({ student, classData, teacherId, onClose, o
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Date
+                            Description
                         </label>
-                        <input
-                            type="date"
-                            value={date}
-                            onChange={(e) => setDate(e.target.value)}
+                        <textarea
+                            value={description}
+                            onChange={(e) => setDescription(e.target.value)}
                             className="w-full p-2 border rounded focus:ring-blue-500 focus:border-blue-500"
                             required
                         />
