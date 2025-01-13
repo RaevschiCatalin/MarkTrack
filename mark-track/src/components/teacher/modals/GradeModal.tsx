@@ -33,6 +33,7 @@ export default function GradeModal({ student, classData, teacherId, onClose, onS
         try {
             setLoading(true);
             await teacherService.addMark(student.id, classData.id, teacherId, classData.subject_id, gradeValue, description);
+            await teacherService.createMarkNotification(student.id, teacherId, classData.subject_id, gradeValue,  description)
             onSuccess();
             onClose();
         } catch (err) {

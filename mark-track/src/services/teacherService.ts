@@ -1,5 +1,6 @@
 import {getRequest, postRequest, deleteRequest, getRequestWithParams} from '../context/api';
 import { Mark, Absence, StudentResponse, TeacherClass } from '../types/teacher';
+import {MarkNotification, AbsenceNotification} from '../types/notification'
 
 export const teacherService = {
     getClasses: async (teacherId: string) => {
@@ -63,5 +64,16 @@ export const teacherService = {
         return await postRequest(`/teacher/absences/${absenceId}/delete`, {
             teacher_id: teacherId
         });
+    },
+
+    createMarkNotification: async (student_id: string, teacher_id: string, subject_id: string, value: number, description: string) => {
+        const response = await postRequest(`/post-mark` , {
+            student_id,
+            teacher_id,
+            subject_id,
+            value,
+            description
+        });
+        return response as MarkNotification;
     }
 }; 
