@@ -3,7 +3,7 @@ import { Mark, Absence, StudentResponse, TeacherClass } from '../types/teacher';
 
 export const teacherService = {
     getClasses: async (teacherId: string) => {
-        const response = await getRequest('/teacher/classes', { teacher_id: teacherId });
+        const response = await getRequest('/teacher/classes');
         return response.classes as TeacherClass[];
     },
 

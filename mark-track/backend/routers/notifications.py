@@ -1,13 +1,7 @@
-from fastapi import APIRouter, HTTPException
-
-from database.firebase_setup import db
-from models.notification import Notification
+from fastapi import APIRouter
 
 router = APIRouter()
 
-@router.get("/get-user-notification")
-async def get_user_notifications(notification: Notification):
-    try:
-        
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error fetching notifications: {e}")
+@router.get("/")
+async def get_notifications():
+    return {"message": "Notifications are working!"}

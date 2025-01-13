@@ -16,7 +16,7 @@ export const postRequest = async <T>(url: string, data: T) => {
     }
 };
 
-export const getRequest = async (url: string, p0: { teacher_id: string; }) => {
+export const getRequest = async (url: string) => {
     try {
         const response = await api.get(url);
         return response.data;
