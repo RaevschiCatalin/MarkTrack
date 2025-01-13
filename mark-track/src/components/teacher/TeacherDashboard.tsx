@@ -25,7 +25,6 @@ export default function TeacherDashboard() {
     useEffect(() => {
         if (uid) {
             loadClasses();
-            console.log(uid);
         }
     }, [uid]);
 
@@ -48,7 +47,7 @@ export default function TeacherDashboard() {
 
     const loadStudents = async () => {
         if (!selectedClass) return;
-        
+
         try {
             setLoading(true);
             const studentsData = await teacherService.getClassStudents(selectedClass, uid!);
@@ -71,16 +70,24 @@ export default function TeacherDashboard() {
         setSelectedStudent(student);
     };
 
-    const handleDataUpdate = () => {
+
+    const handleStudentDataUpdate = () => {
+        if (selectedStudent) {
+            setSelectedStudent({ ...selectedStudent });
+        }
+    };
+
+    const handleClassDataUpdate = () => {
         loadStudents();
     };
-        if (!uid) {
+
+    if (!uid) {
         return <div>Please log in to access the dashboard.</div>;
     }
 
     return (
         <div className="flex h-screen bg-gray-100">
-            <ClassSidebar 
+            <ClassSidebar
                 classes={classes}
                 selectedClass={selectedClass}
                 onClassSelect={handleClassSelect}
@@ -96,7 +103,7 @@ export default function TeacherDashboard() {
                 )}
 
                 {selectedClass && !selectedStudent && (
-                    <StudentList 
+                    <StudentList
                         students={students}
                         loading={loading}
                         onStudentSelect={handleStudentSelect}
@@ -105,10 +112,10 @@ export default function TeacherDashboard() {
                 )}
 
                 {selectedStudent && (
-                    <StudentDetails 
+                    <StudentDetails
                         student={selectedStudent}
                         classData={classes.find(c => c.id === selectedClass)!}
-                        onUpdate={handleDataUpdate}
+                        onUpdate={handleStudentDataUpdate}
                         onOpenGradeModal={() => setIsGradeModalOpen(true)}
                         onOpenAbsenceModal={() => setIsAbsenceModalOpen(true)}
                     />
@@ -116,22 +123,22 @@ export default function TeacherDashboard() {
             </div>
 
             {isGradeModalOpen && selectedStudent && (
-                <GradeModal 
+                <GradeModal
                     student={selectedStudent}
                     classData={classes.find(c => c.id === selectedClass)!}
                     teacherId={uid}
                     onClose={() => setIsGradeModalOpen(false)}
-                    onSuccess={handleDataUpdate}
+                    onSuccess={handleStudentDataUpdate}
                 />
             )}
 
             {isAbsenceModalOpen && selectedStudent && (
-                <AbsenceModal 
+                <AbsenceModal
                     student={selectedStudent}
                     classData={classes.find(c => c.id === selectedClass)!}
                     teacherId={uid}
                     onClose={() => setIsAbsenceModalOpen(false)}
-                    onSuccess={handleDataUpdate}
+                    onSuccess={handleStudentDataUpdate}
                 />
             )}
         </div>

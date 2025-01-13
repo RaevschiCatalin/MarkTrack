@@ -12,13 +12,7 @@ interface Props {
     onOpenAbsenceModal: () => void;
 }
 
-export default function StudentDetails({
-                                           student,
-                                           classData,
-                                           onUpdate,
-                                           onOpenGradeModal,
-                                           onOpenAbsenceModal
-                                       }: Props) {
+export default function StudentDetails({ student, classData, onUpdate, onOpenGradeModal, onOpenAbsenceModal }: Props) {
     const [loading, setLoading] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [grades, setGrades] = useState<Mark[]>([]);
@@ -26,14 +20,22 @@ export default function StudentDetails({
 
     const fetchStudentMarksAndAbsences = async () => {
         try {
+            setLoading("fetching")
             const gradesResponse = await getRequest(`/teacher/students/${student.id}/marks`);
             const absencesResponse = await getRequest(`/teacher/students/${student.id}/absences`);
             setGrades(gradesResponse.marks);
             setAbsences(absencesResponse.absences);
+            setError(null);
         } catch (err) {
             setError('Failed to fetch student marks and absences');
             console.error(err);
+        } finally {
+            setLoading(null);
         }
+    };
+
+    const handleDataUpdate = async() => {
+        await fetchStudentMarksAndAbsences();
     };
 
     const handleDeleteMark = async (markId: string) => {
@@ -42,7 +44,7 @@ export default function StudentDetails({
         try {
             setLoading(`mark-${markId}`);
             await teacherService.deleteMark(classData.subject_id, markId);
-            onUpdate();
+            await handleDataUpdate();
         } catch (err) {
             setError('Failed to delete grade');
             console.error(err);
@@ -57,7 +59,7 @@ export default function StudentDetails({
         try {
             setLoading(`absence-${absenceId}`);
             await teacherService.deleteAbsence(classData.subject_id, absenceId);
-            onUpdate();
+            await handleDataUpdate();
         } catch (err) {
             setError('Failed to delete absence');
             console.error(err);
@@ -74,7 +76,7 @@ export default function StudentDetails({
                 absence.id,
                 { is_motivated: !absence.is_motivated }
             );
-            onUpdate();
+            await handleDataUpdate();
         } catch (err) {
             setError('Failed to update absence');
             console.error(err);
