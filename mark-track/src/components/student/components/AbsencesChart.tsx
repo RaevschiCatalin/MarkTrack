@@ -1,19 +1,33 @@
 import React from "react";
+import { Pie } from "react-chartjs-2";
+import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
+import { Absence } from "@/types/student";
+
+ChartJS.register(ArcElement, Tooltip, Legend);
 
 interface AbsencesChartProps {
-    total: number;
-    absences: { is_motivated: boolean }[];
+    absences: Absence[];
 }
 
-const AbsencesChart: React.FC<AbsencesChartProps> = ({ total, absences }) => {
-    const motivated = absences.filter((a) => a.is_motivated).length;
+const AbsencesChart: React.FC<AbsencesChartProps> = ({ absences }) => {
+    const motivatedCount = absences.filter((absence) => absence.is_motivated).length;
+    const unmotivatedCount = absences.length - motivatedCount;
+
+    const pieData = {
+        labels: ["Motivated", "Unmotivated"],
+        datasets: [
+            {
+                data: [motivatedCount, unmotivatedCount],
+                backgroundColor: ["#4CAF50", "#F5C200"],
+                hoverBackgroundColor: ["#66BB6A", "#FFEB3B"],
+            },
+        ],
+    };
 
     return (
-        <div className="p-4 bg-red-100 rounded-md shadow-sm">
-            <h3 className="text-lg font-semibold mb-2">Absences Overview</h3>
-            <p className="text-sm text-gray-600">Total Absences: {total}</p>
-            <p className="text-sm text-gray-600">Motivated: {motivated}</p>
-            <p className="text-sm text-gray-600">Unmotivated: {total - motivated}</p>
+        <div>
+            <h3 className="text-lg font-semibold mb-2">Absences Distribution</h3>
+            <Pie data={pieData} options={{ responsive: true }} />
         </div>
     );
 };
