@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { teacherService } from "@/services/teacherService";
+import { studentService } from "@/services/studentService";
 import { TeacherClass, StudentResponse } from "@/types/teacher";
 import ClassSidebar from "./components/ClassSidebar";
 import StudentList from "./components/StudentList";
@@ -71,15 +72,17 @@ export default function TeacherDashboard() {
     };
 
 
-    const handleStudentDataUpdate = () => {
-        if (selectedStudent) {
-            setSelectedStudent({ ...selectedStudent });
+    const handleStudentDataUpdate = async () => {
+        try{
+            const updateStudentDetails = await studentService.fetchStudentMarksAndAbsences(selectedStudent.id);
+            
+        } catch (err) {
+            setError("Failed to update student data");
+            console.error(err);
         }
     };
 
-    const handleClassDataUpdate = () => {
-        loadStudents();
-    };
+
 
     if (!uid) {
         return <div>Please log in to access the dashboard.</div>;

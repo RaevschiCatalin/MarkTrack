@@ -67,7 +67,7 @@ export const teacherService = {
     },
 
     createMarkNotification: async (student_id: string, teacher_id: string, subject_id: string, value: number, description: string) => {
-        const response = await postRequest(`/post-mark` , {
+        const response = await postRequest(`notifications/post-mark` , {
             student_id,
             teacher_id,
             subject_id,
