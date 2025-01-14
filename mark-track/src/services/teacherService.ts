@@ -77,4 +77,15 @@ export const teacherService = {
         });
         return response as MarkNotification;
     },
+
+    createAbsenceNotification: async (student_id: string, teacher_id: string, subject_id: string, is_motivated: boolean, description: string) => {
+        const response = await postRequest(`notifications/post-absence`, {
+            student_id,
+            teacher_id,
+            subject_id,
+            is_motivated,
+            description
+        });
+        return response as AbsenceNotification;
+    }
 }; 
