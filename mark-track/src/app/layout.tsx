@@ -19,6 +19,7 @@ const geistMono = localFont({
 export const metadata: Metadata = {
   title: "marktrack",
   description: "A simple app for tracking your marks",
+  icons: "../../public/logo.svg",
 };
 
 export default function RootLayout({

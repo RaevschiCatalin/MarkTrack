@@ -60,7 +60,7 @@ async def get_class_students(
 
         subject_id = next(
             (subj.get("subject_id") for subj in class_data.get("subjects", [])
-            if subj.get("teacher_id") == teacher_id),
+             if subj.get("teacher_id") == teacher_id),
             None
         )
 
@@ -84,17 +84,16 @@ async def get_class_students(
                 }
 
                 if include_stats:
-                    marks = db.collection("Marks").where(
-                        "student_id", "==", student_id
-                    ).where(
-                        "subject_id", "==", subject_id
-                    ).stream()
 
-                    absences = db.collection("Absences").where(
-                        "student_id", "==", student_id
-                    ).where(
-                        "subject_id", "==", subject_id
-                    ).stream()
+                    marks = db.collection("Marks") \
+                        .where("student_id", "==", student_id) \
+                        .where("subject_id", "==", subject_id) \
+                        .stream()
+
+                    absences = db.collection("Absences") \
+                        .where("student_id", "==", student_id) \
+                        .where("subject_id", "==", subject_id) \
+                        .stream()
 
                     marks_list = [m.to_dict() | {"id": m.id} for m in marks]
                     absences_list = [a.to_dict() | {"id": a.id} for a in absences]
@@ -113,6 +112,7 @@ async def get_class_students(
     except Exception as e:
         print(f"Error details: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Error fetching students: {str(e)}")
+
 
 # Add a mark to a student
 @router.post("/classes/{class_id}/students/marks")
@@ -196,21 +196,46 @@ async def add_student_absence(class_id: str, absence_request: Absence):
 
 # Get all marks of a student
 @router.get("/students/{student_id}/marks")
-async def get_student_marks(student_id: str):
+async def get_student_marks(student_id: str, teacher_id: str = Query(...)):
     try:
-        marks = db.collection("Marks").where("student_id", "==", student_id).stream()
+        # Find the teacher by teacher_id
+        teacher_doc = db.collection("Teachers").document(teacher_id).get()
+        if not teacher_doc.exists:
+            raise HTTPException(status_code=404, detail="Teacher not found")
+
+        teacher_data = teacher_doc.to_dict()
+        subject_id = teacher_data["subject_id"]  # Get the subject_id of the teacher
+
+        # Query Marks collection filtered by student_id and subject_id
+        marks = db.collection("Marks") \
+            .where("student_id", "==", student_id) \
+            .where("subject_id", "==", subject_id) \
+            .stream()
+
         marks_list = [m.to_dict() | {"id": m.id} for m in marks]
 
         return {"marks": marks_list}
     except Exception as e:
         print(f"Error details: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Error fetching marks: {str(e)}")
-
-# Get all absences of a student
+#get all absences of a student
 @router.get("/students/{student_id}/absences")
-async def get_student_absences(student_id: str):
+async def get_student_absences(student_id: str, teacher_id: str = Query(...)):
     try:
-        absences = db.collection("Absences").where("student_id", "==", student_id).stream()
+        # Find the teacher by teacher_id
+        teacher_doc = db.collection("Teachers").document(teacher_id).get()
+        if not teacher_doc.exists:
+            raise HTTPException(status_code=404, detail="Teacher not found")
+
+        teacher_data = teacher_doc.to_dict()
+        subject_id = teacher_data["subject_id"]  # Get the subject_id of the teacher
+
+        # Query Absences collection filtered by student_id and subject_id
+        absences = db.collection("Absences") \
+            .where("student_id", "==", student_id) \
+            .where("subject_id", "==", subject_id) \
+            .stream()
+
         absences_list = [a.to_dict() | {"id": a.id} for a in absences]
 
         return {"absences": absences_list}

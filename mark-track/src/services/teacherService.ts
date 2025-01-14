@@ -66,6 +66,13 @@ export const teacherService = {
         return await deleteRequest(`/teacher/absences/${absenceId}`);
     },
 
+    fetchStudentMarksAndAbsences: async (studentId: string, teacherId: string) => {
+        const marksResponse = await getRequestWithParams(`/teacher/students/${studentId}/marks`, {"teacher_id": teacherId});
+        const absencesResponse = await getRequestWithParams(`/teacher/students/${studentId}/absences`, {"teacher_id": teacherId});
+        return {
+            marks: marksResponse.marks, absences: absencesResponse.absences
+        }
+    },
 
     createMarkNotification: async (student_id: string, teacher_id: string, subject_id: string, value: number, description: string) => {
         const response = await postRequest(`notifications/post-mark` , {

@@ -85,6 +85,7 @@ export default function EditGradeModal({
                             dateFormat="dd/MM/yyyy"
                             className="w-full p-2 border rounded focus:ring-blue-500 focus:border-blue-500"
                             required
+                            maxDate={new Date()}
                         />
                     </div>
 

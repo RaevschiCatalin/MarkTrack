@@ -84,6 +84,7 @@ export default function AbsenceModal({ student, classData, teacherId, onClose, o
                             dateFormat="dd/MM/yyyy"
                             maxDate={new Date()}
                             required
+
                         />
                     </div>
 
