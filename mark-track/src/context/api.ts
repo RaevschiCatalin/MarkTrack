@@ -42,3 +42,11 @@ export const deleteRequest = async (url: string) => {
         throw error;
     }
 };
+export const putRequest = async <T>(url: string, data: T) => {
+    try {
+        const response = await api.put(url, data);
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+}

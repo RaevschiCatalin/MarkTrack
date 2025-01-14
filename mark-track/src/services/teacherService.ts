@@ -1,4 +1,4 @@
-import {getRequest, postRequest, deleteRequest, getRequestWithParams} from '../context/api';
+import {putRequest, postRequest, deleteRequest, getRequestWithParams} from '../context/api';
 import { Mark, Absence, StudentResponse, TeacherClass } from '../types/teacher';
 import {MarkNotification, AbsenceNotification} from '../types/notification'
 
@@ -16,55 +16,56 @@ export const teacherService = {
         return response.students as StudentResponse[];
     },
 
-    addMark: async (student_id: string, class_id: string, teacher_id: string, subject_id: string, value: number, description: string ) => {
+    addMark: async (student_id: string, class_id: string, teacher_id: string, subject_id: string, value: number, description: string, date: Date ) => {
         const response = await postRequest(`/teacher/classes/${class_id}/students/marks`, {
             student_id,
             teacher_id,
             subject_id,
             value,
-            description
+            description,
+            date
         });
         return response as Mark;
     },
 
-    updateMark: async (teacherId: string, markId: string, value: number) => {
-        const response = await postRequest(`/teacher/marks/${markId}`, {
-            teacher_id: teacherId,
-            value
-        });
-        return response as Mark;
-    },
-
-    deleteMark: async (teacherId: string, markId: string) => {
-        return await postRequest(`/teacher/marks/${markId}/delete`, {
-            teacher_id: teacherId
-        });
-    },
-
-    addAbsence: async (student_id: string,class_id: string, teacher_id: string, subject_id: string, is_motivated: boolean, description: string) => {
+    addAbsence: async (student_id: string,class_id: string, teacher_id: string, subject_id: string, is_motivated: boolean, description: string,  date: Date) => {
         const response = await postRequest(`/teacher/classes/${class_id}/students/absences`, {
             student_id,
             teacher_id,
             subject_id,
             is_motivated,
-            description
+            description,
+            date
         });
         return response as Absence;
     },
 
-    updateAbsence: async (teacherId: string, absenceId: string, data: { is_motivated: boolean }) => {
-        const response = await postRequest(`/teacher/absences/${absenceId}`, {
-            teacher_id: teacherId,
-            ...data
+    updateMark: async (markId: string, value: number, description: string, date: Date) => {
+        const response = await putRequest(`/teacher/marks/${markId}`, {
+            value,
+            description,
+            date
+        });
+        return response as Mark;
+    },
+
+    updateAbsence: async (absenceId: string, is_motivated: boolean, description: string, date: Date) => {
+        const response = await putRequest(`/teacher/absences/${absenceId}`, {
+            is_motivated,
+            description,
+            date
         });
         return response as Absence;
     },
 
-    deleteAbsence: async (teacherId: string, absenceId: string) => {
-        return await postRequest(`/teacher/absences/${absenceId}/delete`, {
-            teacher_id: teacherId
-        });
+    deleteMark: async ( markId: string) => {
+        return await deleteRequest(`/teacher/marks/${markId}`);
     },
+
+    deleteAbsence: async (absenceId: string) => {
+        return await deleteRequest(`/teacher/absences/${absenceId}`);
+    },
+
 
     createMarkNotification: async (student_id: string, teacher_id: string, subject_id: string, value: number, description: string) => {
         const response = await postRequest(`notifications/post-mark` , {
@@ -75,5 +76,5 @@ export const teacherService = {
             description
         });
         return response as MarkNotification;
-    }
+    },
 }; 

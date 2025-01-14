@@ -8,3 +8,9 @@ class Absence(BaseModel):
     subject_id: str
     is_motivated: bool
     description: Optional[str] = None
+    date: Optional[str] = None
+
+class UpdateAbsence(BaseModel):
+    is_motivated: bool
+    description: Optional[str] = None
+    date: str = None

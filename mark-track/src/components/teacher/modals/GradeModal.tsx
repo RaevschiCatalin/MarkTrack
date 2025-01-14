@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { StudentResponse, TeacherClass } from "@/types/teacher";
 import { teacherService } from "@/services/teacherService";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
 interface Props {
     student: StudentResponse;
@@ -13,13 +15,14 @@ interface Props {
 export default function GradeModal({ student, classData, teacherId, onClose, onSuccess }: Props) {
     const [grade, setGrade] = useState("");
     const [description, setDescription] = useState("");
+    const [date, setDate] = useState<Date | null>(new Date());
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        if (!grade || !description) {
+        if (!grade || !description || !date) {
             setError("Please fill in all fields");
             return;
         }
@@ -32,8 +35,15 @@ export default function GradeModal({ student, classData, teacherId, onClose, onS
 
         try {
             setLoading(true);
-            await teacherService.addMark(student.id, classData.id, teacherId, classData.subject_id, gradeValue, description);
-            await teacherService.createMarkNotification(student.id, teacherId, classData.subject_id, gradeValue,  description)
+            await teacherService.addMark(
+                student.id,
+                classData.id,
+                teacherId,
+                classData.subject_id,
+                gradeValue,
+                description,
+                date
+            );
             onSuccess();
             onClose();
         } catch (err) {
@@ -81,6 +91,19 @@ export default function GradeModal({ student, classData, teacherId, onClose, onS
                         <textarea
                             value={description}
                             onChange={(e) => setDescription(e.target.value)}
+                            className="w-full p-2 border rounded focus:ring-blue-500 focus:border-blue-500"
+                            required
+                        />
+                    </div>
+
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Date
+                        </label>
+                        <DatePicker
+                            selected={date}
+                            onChange={(date) => setDate(date)}
+                            dateFormat="dd/MM/yyyy"
                             className="w-full p-2 border rounded focus:ring-blue-500 focus:border-blue-500"
                             required
                         />

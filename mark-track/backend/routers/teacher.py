@@ -3,8 +3,8 @@ from typing import  Optional
 from datetime import datetime
 
 from database.firebase_setup import db
-from models.mark import Mark
-from models.absence import Absence
+from models.mark import Mark,UpdateMark
+from models.absence import Absence, UpdateAbsence
 
 router = APIRouter()
 
@@ -114,6 +114,7 @@ async def get_class_students(
         print(f"Error details: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Error fetching students: {str(e)}")
 
+# Add a mark to a student
 @router.post("/classes/{class_id}/students/marks")
 async def add_student_mark(class_id: str, mark_request: Mark):
     try:
@@ -143,7 +144,7 @@ async def add_student_mark(class_id: str, mark_request: Mark):
             "student_id": mark_request.student_id,
             "subject_id": mark_request.subject_id,
             "value": mark_request.value,
-            "date": datetime.now().isoformat(),
+            "date": mark_request.date,
             "description": mark_request.description
         }
 
@@ -153,6 +154,7 @@ async def add_student_mark(class_id: str, mark_request: Mark):
         print(f"Error details: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Error adding mark: {str(e)}")
 
+# Add an absence to a student
 @router.post("/classes/{class_id}/students/absences")
 async def add_student_absence(class_id: str, absence_request: Absence):
     try:
@@ -182,7 +184,7 @@ async def add_student_absence(class_id: str, absence_request: Absence):
             "student_id": absence_request.student_id,
             "subject_id": absence_request.subject_id,
             "is_motivated": absence_request.is_motivated,
-            "date": datetime.now().isoformat(),
+            "date": absence_request.date,
             "description": absence_request.description
         }
 
@@ -215,3 +217,69 @@ async def get_student_absences(student_id: str):
     except Exception as e:
         print(f"Error details: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Error fetching absences: {str(e)}")
+
+# Delete a mark
+@router.delete("/marks/{mark_id}")
+async def delete_student_mark(mark_id: str):
+    try:
+        mark = db.collection("Marks").document(mark_id).get()
+        if not mark.exists:
+            raise HTTPException(status_code=404, detail="Mark not found")
+
+        db.collection("Marks").document(mark_id).delete()
+        return {"message": "Mark deleted successfully"}
+    except Exception as e:
+        print(f"Error details: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error deleting mark: {str(e)}")
+
+# Delete an absence
+@router.delete("/absences/{absence_id}")
+async def delete_student_absence(absence_id: str):
+    try:
+        absence = db.collection("Absences").document(absence_id).get()
+        if not absence.exists:
+            raise HTTPException(status_code=404, detail="Absence not found")
+
+        db.collection("Absences").document(absence_id).delete()
+        return {"message": "Absence deleted successfully"}
+    except Exception as e:
+        print(f"Error details: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error deleting absence: {str(e)}")
+
+# Edit a mark
+@router.put("/marks/{mark_id}")
+async def edit_student_mark(mark_id: str, mark_request: UpdateMark):
+    try:
+        mark = db.collection("Marks").document(mark_id).get()
+        if not mark.exists:
+            raise HTTPException(status_code=404, detail="Mark not found")
+
+        db.collection("Marks").document(mark_id).update({
+            "value": mark_request.value,
+            "description": mark_request.description,
+            "date": mark_request.date
+        })
+
+        return {"message": "Mark updated successfully"}
+    except Exception as e:
+        print(f"Error details: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error updating mark: {str(e)}")
+
+# Edit an absence
+@router.put("/absences/{absence_id}")
+async def edit_student_absence(absence_id: str, absence_request: UpdateAbsence):
+    try:
+        absence = db.collection("Absences").document(absence_id).get()
+        if not absence.exists:
+            raise HTTPException(status_code=404, detail="Absence not found")
+
+        db.collection("Absences").document(absence_id).update({
+            "is_motivated": absence_request.is_motivated,
+            "description": absence_request.description,
+            "date": absence_request.date
+        })
+
+        return {"message": "Absence updated successfully"}
+    except Exception as e:
+        print(f"Error details: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error updating absence: {str(e)}")
