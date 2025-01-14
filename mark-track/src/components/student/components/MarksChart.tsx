@@ -12,7 +12,7 @@ interface MarksChartProps {
 const MarksChart: React.FC<MarksChartProps> = ({ marks }) => {
     const labels = marks.map((mark) => new Date(mark.date).toLocaleDateString());
     const markValues = marks.map((mark) => mark.value);
-
+    const average = markValues.reduce((acc, value) => acc + value, 0) / markValues.length;
     // Bar chart configuration
     const barData = {
         labels,
@@ -43,6 +43,10 @@ const MarksChart: React.FC<MarksChartProps> = ({ marks }) => {
 
     return (
         <div className="space-y-6">
+            <div>
+                <h3 className="text-lg font-semibold mb-2">Average Grade</h3>
+                <p className="text-3xl font-semibold">{average.toFixed(2)}</p>
+            </div>
             <div>
                 <h3 className="text-lg font-semibold mb-2">Marks Distribution</h3>
                 <Bar data={barData} options={{ responsive: true }} />
