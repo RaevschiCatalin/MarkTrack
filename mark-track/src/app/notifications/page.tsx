@@ -1,20 +1,15 @@
 "use client"
 
-import { use, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { notificationService } from '@/services/notificationService';
 import { MarkNotification, AbsenceNotification } from '@/types/notification';
 import { useAuth } from '@/context/AuthContext';
 
 export default function Notifications() {
-
     const { uid } = useAuth();
     const [notifications, setNotifications] = useState<(MarkNotification | AbsenceNotification)[]>([]);
-    const [teacherName, setTeacherName] = useState('');
-    const [subjectName, setSubjectName] = useState('');
 
-    
-
-    useEffect(() => {   
+    useEffect(() => {
         if (uid) {
             loadNotifications();
         }
@@ -23,29 +18,25 @@ export default function Notifications() {
     const loadNotifications = async () => {
         try {
             const notifications = await notificationService.getNotifications(uid!);
+            console.log(notifications); // Log to inspect the structure
             setNotifications(notifications);
         } catch (err) {
             console.error(err);
         }
     }
 
-    const loadTeacherName = async (teacherId: string) => {
+    // Delete notification handler
+    const deleteNotification = async (notificationId: string) => {
         try {
-            const teacherName = await notificationService.getTeacherName(teacherId);
-            setTeacherName(teacherName);
-        } catch (err) {
-            console.error(err);
-        }
-    }
+            // Call the backend to delete the notification
+            await notificationService.deleteNotification(notificationId);
 
-    const loadSubjectName = async (subjectId: string) => {
-        try {
-            const subjectName = await notificationService.getSubjectName(subjectId);
-            setSubjectName(subjectName);
+            // Remove the deleted notification from state
+            setNotifications(notifications.filter(notification => notification.id !== notificationId));
         } catch (err) {
-            console.error(err);
+            console.error('Error deleting notification:', err);
         }
-    }
+    };
 
     if (!uid) {
         return <div>Please log in to access the dashboard.</div>;
@@ -55,25 +46,41 @@ export default function Notifications() {
         <div className="min-h-screen flex flex-col items-center pt-20">
             <h1 className="py-10 text-3xl font-bold">Notifications</h1>
 
-            {notifications.map((notification) => (
-                <div 
-                    key={notification.id}  // Added key here using notification.id
-                    className="md:max-w-xl max-w-sm w-full bg-gray-100 p-4 rounded-lg shadow-lg mb-5"
-                >
-                    <div className="flex justify-between items-center">
-                        <h2 className="font-semibold text-lg text-gray-900">
-                            {isMarkNotification(notification) ? 'New grade' : 'New Absence'}
-                        </h2>
-                        <span className="btn btn-sm btn-circle btn-ghost">X</span>
+            {notifications.map((notification, index) => {
+                console.log("Notification id:", notification.id);
+                // Use the time field if available, otherwise use a fallback unique key
+                const notificationKey = notification.date
+                    ? `${notification.teacher_id}-${notification.subject_id}-${notification.student_id}-${notification.date}`
+                    : `${notification.teacher_id}-${notification.subject_id}-${notification.student_id}-${index}`;
+
+                return (
+                    <div 
+                        key={notificationKey}  // Ensure the key is unique
+                        className="md:max-w-xl max-w-sm w-full bg-gray-100 p-4 rounded-lg shadow-lg mb-5"
+                    >
+                        <div className="flex justify-between items-center">
+                            <h2 className="font-semibold text-lg text-gray-900">
+                                {isMarkNotification(notification) ? 'New grade' : 'New Absence'}
+                            </h2>
+                            {/* The "X" button */}
+                            <span 
+                                className="btn btn-sm btn-circle btn-ghost cursor-pointer"
+                                onClick={() => deleteNotification(notification.id)} // Delete notification on click
+                            >
+                                X
+                            </span>
+                        </div>
+                        <p className="text-sm text-gray-600 mt-2">
+                            {isMarkNotification(notification) 
+                                ? `You got a ${notification.value} \n
+                                ${notification.description}` 
+                                : `You were ${notification.is_motivated ? 'justified' : 'absent'} on ${notification.date.substring(0,10)} \n
+                                ${notification.description}`}
+                        </p>
+                        <p className="text-xs text-gray-500 mt-2">{notification.date.substring(0,10)}</p>
                     </div>
-                    <p className="text-sm text-gray-600 mt-2">
-                        {isMarkNotification(notification) 
-                            ? `You got a ${notification.value} in ${subjectName} from ${teacherName}` 
-                            : `You were ${notification.is_motivated ? 'justified' : 'absent'} from ${subjectName} on ${notification.time}`}
-                    </p>
-                    <p className="text-xs text-gray-500 mt-2">{notification.time}</p>
-                </div>
-            ))}
+                );
+            })}
         </div>
     );
 }

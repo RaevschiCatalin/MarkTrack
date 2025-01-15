@@ -19,11 +19,14 @@ async def get_notifications_from_firestore(student_id: str):
     
     student_notifications = []
     
-    # Parse the notifications
+    # Parse the notifications and include the document ID
     for notification in notifications:
-        student_notifications.append(notification.to_dict())  # Add the notification data
+        notification_data = notification.to_dict()
+        notification_data['id'] = notification.id  # Add the document ID as 'id'
+        student_notifications.append(notification_data)  # Add the notification data
     
     return student_notifications
+
 
 @router.get("/")
 async def get_notifications(student_id: str = Query(...)):
