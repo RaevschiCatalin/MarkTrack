@@ -37,6 +37,7 @@ export default function AbsenceModal({ student, classData, teacherId, onClose, o
                 description,
                 absenceDate
             );
+            await teacherService.createAbsenceNotification(student.id, teacherId, classData.subject_id, isMotivated, description);
             onSuccess();
             onClose();
         } catch (err) {

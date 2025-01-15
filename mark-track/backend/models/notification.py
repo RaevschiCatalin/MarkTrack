@@ -20,4 +20,5 @@ class AbsenceNotification(BaseModel):
 
 class ClassAsignmentNotification(BaseModel):
     pass
+
     

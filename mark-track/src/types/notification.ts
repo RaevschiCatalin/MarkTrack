@@ -5,15 +5,15 @@ export interface NotificationBase {
 }
 
 export interface MarkNotification extends NotificationBase {
-    id: string;
+    id?: string;
     value: number;
     description: string;
-    time: Date;
+    time: string;
 }
 
 export interface AbsenceNotification extends NotificationBase {
-    id: string;
+    id?: string;
     is_motivated: boolean;
     description: string;
-    time: Date;
+    time: string;
 }

@@ -74,4 +74,42 @@ async def post_absence_notification(notification_request: AbsenceNotification):
     except Exception as e:
         print(f"Error details: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Error adding absence notification: {str(e)}")   
+    
+@router.delete("/{notification_id}")
+async def delete_notification(notification_id: str):
+    try:
+        notification = db.collection("Notifications").document(notification_id).get()
+        if not notification.exists:
+            raise HTTPException(status_code=404, detail="Notification not found")
 
+        db.collection("Notifications").document(notification_id).delete()
+        return {"message": "Notification deleted successfully"}
+    except Exception as e:
+        print(f"Error details: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error deleting notification: {str(e)}")
+    
+@router.get("/get-teacher")
+async def get_teacher_data(teacher_id: str = Query(...)):
+    try:
+        teacher = db.collection("Teachers").document(teacher_id).get()
+        if not teacher.exists:
+            raise HTTPException(status_code=404, detail="Teacher not found")
+        
+        teacher_data = teacher.to_dict()
+        return {"teacher": teacher_data}
+    except Exception as e:
+        print(f"Error details: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error fetching teacher: {str(e)}")
+
+@router.get("/get-subject")
+async def get_subject_data(subject_id: str = Query(...)):
+    try:
+        subject = db.collection("Subjects").document(subject_id).get()
+        if not subject.exists:
+            raise HTTPException(status_code=404, detail="Subject not found")
+        
+        subject_data = subject.to_dict()
+        return {"subject": subject_data}
+    except Exception as e:
+        print(f"Error details: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error fetching subject: {str(e)}")
